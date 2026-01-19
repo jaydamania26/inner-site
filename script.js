@@ -36,15 +36,15 @@ function closePortfolio() {
 // Minimize (Toggle visibility)
 function minimizeWindow() {
     windowEl.style.display = "none";
-    taskTab.style.borderStyle = "outset"; 
-    taskTab.style.background = "#c0c0c0"; 
+    taskTab.style.borderStyle = "outset";
+    taskTab.style.background = "#c0c0c0";
 }
 
 // Toggle from Taskbar
 function toggleMinimize() {
     if (windowEl.style.display === "none") {
         windowEl.style.display = "flex";
-        taskTab.style.borderStyle = "solid"; 
+        taskTab.style.borderStyle = "solid";
         taskTab.style.borderColor = "#808080 #fff #fff #808080";
         taskTab.style.backgroundImage = "linear-gradient(45deg, #d4d0c8 25%, #ffffff 25%, #ffffff 50%, #d4d0c8 50%, #d4d0c8 75%, #ffffff 75%, #ffffff 100%)";
     } else {
@@ -68,13 +68,13 @@ function navigate(sectionId, linkElement) {
 function toggleStartMenu() {
     const menu = document.getElementById('start-menu');
     const btn = document.querySelector('.start-btn');
-    
+
     if (menu.classList.contains('show')) {
         menu.classList.remove('show');
-        btn.style.borderStyle = "outset"; 
+        btn.style.borderStyle = "outset";
     } else {
         menu.classList.add('show');
-        btn.style.borderStyle = "inset"; 
+        btn.style.borderStyle = "inset";
     }
 }
 
@@ -95,7 +95,7 @@ let isDragging = false;
 let startX, startY, initialLeft, initialTop;
 
 dragHandle.addEventListener("mousedown", (e) => {
-    if (e.target.tagName === "BUTTON") return; 
+    if (e.target.tagName === "BUTTON") return;
     isDragging = true;
     startX = e.clientX;
     startY = e.clientY;
@@ -129,7 +129,7 @@ const desktopArea = document.getElementById("desktop-area");
 // Show menu on Right Click
 document.addEventListener("contextmenu", (e) => {
     e.preventDefault();
-    
+
     // Only show if clicking on desktop background or body, NOT inside the portfolio window
     if (!windowEl.contains(e.target) || windowEl.style.display === 'none') {
         const { clientX: mouseX, clientY: mouseY } = e;

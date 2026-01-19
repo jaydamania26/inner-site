@@ -1,0 +1,8 @@
+   1 # 1. Stage your changes (add all modified and new files to be committed)
+   2 git add .
+   3
+   4 # 2. Commit your staged changes with a descriptive message
+   5 git commit -m "Your descriptive commit message here"
+   6
+   7 # 3. Push your committed changes to the remote repository (assuming you're on the 'master' branch)
+   8 git push origin master
