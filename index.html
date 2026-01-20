@@ -25,10 +25,17 @@
             <span>My Showcase</span>
         </div>
 
-        <!-- GAME ICON -->
+        <!-- ZOMBIE GAME ICON -->
         <div class="icon" ondblclick="openGame()">
             <img src="assets/doomIcon.png" alt="Game">
             <span>ZOMBIE.EXE</span>
+        </div>
+
+        <!-- ROAD RASH GAME ICON -->
+        <div class="icon" ondblclick="openRR()">
+            <!-- Reusing doomIcon but shifting hue to look different (Blue/Purple) -->
+            <img src="assets/doomIcon.png" style="filter: hue-rotate(240deg);" alt="Road Rash">
+            <span>ROADRASH.EXE</span>
         </div>
 
         <div class="icon" onclick="openCredits()">
@@ -47,7 +54,6 @@
             </div>
             <div class="title-bar-controls">
                 <button aria-label="Minimize" onclick="minimizeWindow()"></button>
-                <!-- ADDED MAXIMIZE FUNCTION HERE -->
                 <button aria-label="Maximize" onclick="toggleMaximize()"></button>
                 <button aria-label="Close" onclick="closePortfolio()"></button>
             </div>
@@ -332,7 +338,6 @@
                     </p>
 
                     <div class="contact-grid">
-                        <!-- FIX: CHANGED TO GMAIL PNG AS REQUESTED -->
                         <a href="mailto:jaydamania26@gmail.com" class="contact-card">
                             <img src="picture/gmail.png" class="contact-icon" alt="Email">
                             <div class="contact-info">
@@ -419,7 +424,41 @@
         </div>
     </div>
 
-    <!-- 4. CREDITS WINDOW -->
+    <!-- 4. ROAD RASH (NEW) WINDOW -->
+    <div class="window" id="rr-window" style="display: none; width: 660px; height: 550px;">
+        <div class="title-bar" id="rr-handle">
+            <div class="title-bar-text">ROADRASH.EXE - Illegal Street Race</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close" onclick="closeRR()"></button>
+            </div>
+        </div>
+        <div class="window-body rr-body">
+            <div class="crt-overlay"></div>
+            <canvas id="rrCanvas" width="640" height="480"></canvas>
+
+            <!-- RR Start Screen -->
+            <div id="rr-ui">
+                <h1 class="game-title" style="color: yellow; text-shadow: 4px 4px 0 #8B0000;">STREET_RASH</h1>
+                <p class="game-text">A / D or Arrows to Steer | Avoid Traffic</p>
+                <button class="retro-btn" onclick="startRR()">IGNITION (START)</button>
+            </div>
+
+            <!-- RR Game Over -->
+            <div id="rr-over-ui" style="display:none;">
+                <h1 class="game-title" style="color: red;">BUSTED / CRASHED</h1>
+                <p class="game-text" id="rr-final-score">DISTANCE: 0 MILES</p>
+                <button class="retro-btn" onclick="startRR()">REMATCH</button>
+            </div>
+
+            <!-- RR HUD -->
+            <div class="game-hud" id="rr-hud" style="display:none; color: yellow;">
+                <span>SPEED: <span id="rr-speed">0</span> MPH</span>
+                <span>DIST: <span id="rr-score">0</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. CREDITS WINDOW -->
     <div class="window" id="credits-window">
         <div class="title-bar" id="credits-handle">
             <div class="title-bar-text">Credits.txt</div>
@@ -451,7 +490,7 @@
         </div>
     </div>
 
-    <!-- 5. TASKBAR -->
+    <!-- 6. TASKBAR -->
     <div class="taskbar">
         <button class="start-btn" onclick="toggleStartMenu()">
             <img src="assets/windowsStartIcon.png" alt="Start">
@@ -465,10 +504,16 @@
             <span>My Showcase</span>
         </div>
 
-        <!-- Game Tab -->
+        <!-- Zombie Tab -->
         <div class="task-tab" id="game-taskbar-tab" style="display: none; background: #000; color: #00ff00;">
             <img src="assets/doomIcon.png">
             <span>ZOMBIE.EXE</span>
+        </div>
+
+        <!-- ROAD RASH Tab -->
+        <div class="task-tab" id="rr-taskbar-tab" style="display: none; background: #222; color: #ffff00;">
+            <img src="assets/doomIcon.png" style="filter: hue-rotate(240deg);">
+            <span>ROADRASH.EXE</span>
         </div>
 
         <div class="spacer"></div>
@@ -478,7 +523,7 @@
         </div>
     </div>
 
-    <!-- 6. START MENU -->
+    <!-- 7. START MENU -->
     <div class="start-menu" id="start-menu">
         <div class="sidebar-strip"><strong>Windows98</strong></div>
         <div class="menu-items">
@@ -490,16 +535,77 @@
                 <img src="assets/doomIcon.png">
                 <span>Games > Zombie.exe</span>
             </div>
+            <!-- ROAD RASH MENU ITEM -->
+            <div class="menu-item" onclick="openRR()">
+                <img src="assets/doomIcon.png" style="filter: hue-rotate(240deg);">
+                <span>Games > RoadRash.exe</span>
+            </div>
             <div class="menu-item" onclick="openCredits()">
                 <img src="assets/credits.png">
                 <span>Credits</span>
             </div>
             <div class="hor-divider"></div>
-            <div class="menu-item" onclick="location.reload()">
+            <!-- Opens Shutdown Dialog -->
+            <div class="menu-item" onclick="openShutdown()">
                 <img src="assets/windowResize.png">
                 <span>Shut Down...</span>
             </div>
         </div>
+    </div>
+
+    <!-- 8. DESKTOP CONTEXT MENU (Hidden by default) -->
+    <div id="context-menu" class="context-menu">
+        <div class="context-item disabled">Arrange Icons</div>
+        <div class="context-item disabled">Line Up Icons</div>
+        <div class="hor-divider"></div>
+        <div class="context-item" onclick="triggerRefresh()">Refresh</div>
+        <div class="hor-divider"></div>
+        <div class="context-item disabled">Paste</div>
+        <div class="context-item disabled">Paste Shortcut</div>
+        <div class="hor-divider"></div>
+        <div class="context-item disabled">New</div>
+        <div class="hor-divider"></div>
+        <div class="context-item disabled">Properties</div>
+    </div>
+
+    <!-- 9. SHUT DOWN DIALOG WINDOW -->
+    <div class="window" id="shutdown-window" style="display: none; width: 350px; z-index: 9999;">
+        <div class="title-bar" id="shutdown-handle">
+            <div class="title-bar-text">Shut Down Windows</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close" onclick="closeShutdown()"></button>
+            </div>
+        </div>
+        <div class="window-body" style="flex-direction: column; padding: 20px;">
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <img src="assets/windowsStartIcon.png" style="width: 32px; height: 32px; image-rendering: pixelated;">
+                <div>
+                    <p style="font-family: 'Pixelify Sans'; margin: 0 0 10px 0; font-size: 14px;">
+                        What do you want the computer to do?
+                    </p>
+                    <div class="shutdown-options">
+                        <label class="radio-container">
+                            <input type="radio" name="shutdown-action" value="shutdown">
+                            <span class="radio-label">Shut down</span>
+                        </label>
+                        <label class="radio-container">
+                            <input type="radio" name="shutdown-action" value="restart" checked>
+                            <span class="radio-label">Restart</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="performShutdownAction()" style="width: 80px;">OK</button>
+                <button onclick="closeShutdown()" style="width: 80px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. FAKE SHUTDOWN SCREEN -->
+    <div id="shutdown-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:10000; align-items:center; justify-content:center; flex-direction:column;">
+        <h1 style="color:#d35400; font-family:'Pixelify Sans'; font-size:40px;">It is now safe to turn off your computer.</h1>
+        <button onclick="location.reload()" style="margin-top:20px; padding:10px;">RESTART</button>
     </div>
 
     <script src="script.js"></script>

@@ -14,7 +14,7 @@ body {
     font-size: 16px !important;
 }
 
-/* MAXIMIZE CLASS (NEW) */
+/* MAXIMIZE CLASS */
 .window.maximized {
     width: 100% !important;
     height: calc(100% - 38px) !important;
@@ -93,7 +93,7 @@ textarea {
     padding: 2px 4px;
 }
 
-/* --- MAIN WINDOW --- */
+/* --- MAIN WINDOW (PORTFOLIO) --- */
 #portfolio-window {
     width: 92vw;
     height: 85vh;
@@ -107,10 +107,9 @@ textarea {
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
     border: 2px solid #dfdfdf;
     transition: width 0.2s, height 0.2s, top 0.2s, left 0.2s;
-    /* Smooth maximize */
 }
 
-/* --- NEW CREDITS WINDOW --- */
+/* --- CREDITS WINDOW --- */
 #credits-window {
     width: 450px;
     position: absolute;
@@ -125,7 +124,7 @@ textarea {
     background: #c0c0c0;
 }
 
-/* --- GAME WINDOW STYLES --- */
+/* --- ZOMBIE GAME WINDOW STYLES --- */
 .game-body {
     background-color: #000;
     position: relative;
@@ -142,6 +141,23 @@ textarea {
     cursor: crosshair;
 }
 
+/* --- ROAD RASH GAME WINDOW STYLES --- */
+.rr-body {
+    background-color: #333; /* Dark asphalt color */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#rrCanvas {
+    background-color: #2c3e50;
+    image-rendering: pixelated;
+    border: 2px solid #555;
+}
+
+/* Common CRT Overlay */
 .crt-overlay {
     position: absolute;
     top: 0;
@@ -155,8 +171,11 @@ textarea {
     z-index: 5;
 }
 
+/* Common Game UI Overlays */
 #game-ui,
-#game-over-ui {
+#game-over-ui,
+#rr-ui,
+#rr-over-ui {
     position: absolute;
     top: 0;
     left: 0;
@@ -733,4 +752,59 @@ textarea {
 .resume-cta a:hover {
     text-decoration: underline;
     background-color: #000;
+}
+
+/* --- CONTEXT MENU --- */
+.context-menu {
+    position: absolute;
+    width: 180px;
+    background: #c0c0c0;
+    border: 2px outset #fff;
+    display: none;
+    flex-direction: column;
+    padding: 2px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+
+.context-item {
+    padding: 4px 15px;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 14px;
+    cursor: default;
+    color: #000;
+}
+
+.context-item:hover {
+    background: #000080;
+    color: #fff;
+}
+
+.context-item.disabled {
+    color: #808080;
+}
+
+.context-item.disabled:hover {
+    background: transparent;
+    color: #808080;
+}
+
+/* --- SHUTDOWN OPTIONS --- */
+.shutdown-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 14px;
+}
+
+.radio-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.radio-label {
+    padding-top: 2px;
 }

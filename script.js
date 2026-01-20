@@ -40,7 +40,7 @@ function minimizeWindow() {
     taskTab.style.background = "#c0c0c0";
 }
 
-// MAXIMIZE FUNCTION (NEW)
+// MAXIMIZE FUNCTION
 function toggleMaximize() {
     if (!isMaximized) {
         windowEl.classList.add("maximized");
@@ -48,9 +48,6 @@ function toggleMaximize() {
     } else {
         windowEl.classList.remove("maximized");
         isMaximized = false;
-
-        // Reset position slightly if needed (handles drag offsets)
-        // Note: CSS 'important' overrides inline drag styles when maximized
     }
 }
 
@@ -81,6 +78,8 @@ function bringToFront(element) {
     document.getElementById("portfolio-window").style.zIndex = "10";
     document.getElementById("credits-window").style.zIndex = "10";
     document.getElementById("game-window").style.zIndex = "10";
+    document.getElementById("shutdown-window").style.zIndex = "10";
+    document.getElementById("rr-window").style.zIndex = "10"; 
     element.style.zIndex = "30";
 }
 
@@ -107,6 +106,8 @@ function toggleStartMenu() {
     } else {
         menu.classList.add('show');
         btn.style.borderStyle = "inset";
+        // Ensure menu is on top
+        menu.style.zIndex = "1001";
     }
 }
 
@@ -165,6 +166,8 @@ function makeDraggable(element, handle) {
 makeDraggable(document.getElementById("portfolio-window"), document.getElementById("drag-handle"));
 makeDraggable(document.getElementById("credits-window"), document.getElementById("credits-handle"));
 makeDraggable(document.getElementById("game-window"), document.getElementById("game-handle"));
+makeDraggable(document.getElementById("shutdown-window"), document.getElementById("shutdown-handle"));
+makeDraggable(document.getElementById("rr-window"), document.getElementById("rr-handle"));
 
 
 /* ========================
@@ -395,6 +398,240 @@ function loop() {
         ctx.fillRect(p.x, p.y, 3, 3);
         if (p.life <= 0) particles.splice(i, 1);
     }
+}
+
+/* ========================
+   7. CONTEXT MENU (REFRESH)
+   ======================== */
+const contextMenu = document.getElementById("context-menu");
+
+// 1. Listen for Right Click
+document.addEventListener('contextmenu', (e) => {
+    e.preventDefault(); // Stop default browser menu
+    
+    // Get mouse position
+    const x = e.clientX;
+    const y = e.clientY;
+
+    // Position menu
+    contextMenu.style.left = `${x}px`;
+    contextMenu.style.top = `${y}px`;
+    contextMenu.style.display = "flex";
+});
+
+// 2. Hide menu on Left Click
+document.addEventListener('click', (e) => {
+    // If we click anywhere, close the menu
+    if (contextMenu.style.display === "flex") {
+        contextMenu.style.display = "none";
+    }
+});
+
+// 3. The Refresh Action
+function triggerRefresh() {
+    location.reload();
+}
+
+/* ========================
+   8. SHUTDOWN / RESTART LOGIC
+   ======================== */
+const shutdownWindow = document.getElementById("shutdown-window");
+const shutdownScreen = document.getElementById("shutdown-screen");
+
+function openShutdown() {
+    // Close start menu first
+    document.getElementById('start-menu').classList.remove('show');
+    document.querySelector('.start-btn').style.borderStyle = "outset";
+    
+    // Open Dialog
+    shutdownWindow.style.display = "flex";
+    bringToFront(shutdownWindow);
+    
+    // Position exactly center (JS helper just in case CSS varies)
+    const rect = shutdownWindow.getBoundingClientRect();
+    shutdownWindow.style.top = (window.innerHeight / 2 - rect.height / 2) + "px";
+    shutdownWindow.style.left = (window.innerWidth / 2 - rect.width / 2) + "px";
+}
+
+function closeShutdown() {
+    shutdownWindow.style.display = "none";
+}
+
+function performShutdownAction() {
+    const radios = document.getElementsByName('shutdown-action');
+    let selectedValue;
+    
+    for (const radio of radios) {
+        if (radio.checked) {
+            selectedValue = radio.value;
+            break;
+        }
+    }
+
+    if (selectedValue === 'restart') {
+        location.reload();
+    } else if (selectedValue === 'shutdown') {
+        // Web pages can't actually shut down the computer, so we fake it
+        shutdownWindow.style.display = "none";
+        shutdownScreen.style.display = "flex";
+        
+        // Optional: Hide cursor to look more authentic
+        document.body.style.cursor = "none";
+    }
+}
+
+/* ========================
+   9. ROAD RASH (RACING) GAME LOGIC
+   ======================== */
+const rrWindow = document.getElementById("rr-window");
+const rrTaskTab = document.getElementById("rr-taskbar-tab");
+const rrCanvas = document.getElementById("rrCanvas");
+const rrCtx = rrCanvas.getContext("2d");
+
+let rrRunning = false;
+let rrAnimId;
+let rrScore = 0;
+let rrSpeed = 0;
+let rrFrame = 0;
+
+// Inputs
+const rrKeys = { left: false, right: false };
+
+// Game Objects
+let rrPlayer = { x: 320, y: 380, width: 40, height: 60, speed: 5 };
+let rrObstacles = []; // Other cars
+let roadLines = [];
+
+function openRR() {
+    rrWindow.style.display = "flex";
+    rrTaskTab.style.display = "flex";
+    bringToFront(rrWindow);
+    document.getElementById('start-menu').classList.remove('show');
+}
+
+function closeRR() {
+    rrWindow.style.display = "none";
+    rrTaskTab.style.display = "none";
+    rrRunning = false;
+    cancelAnimationFrame(rrAnimId);
+}
+
+// Controls
+window.addEventListener("keydown", (e) => {
+    if(e.key === "ArrowLeft" || e.key === "a") rrKeys.left = true;
+    if(e.key === "ArrowRight" || e.key === "d") rrKeys.right = true;
+});
+window.addEventListener("keyup", (e) => {
+    if(e.key === "ArrowLeft" || e.key === "a") rrKeys.left = false;
+    if(e.key === "ArrowRight" || e.key === "d") rrKeys.right = false;
+});
+
+function startRR() {
+    rrScore = 0;
+    rrSpeed = 5;
+    rrPlayer.x = rrCanvas.width / 2 - 20;
+    rrObstacles = [];
+    roadLines = [];
+    
+    // Init Road Lines
+    for(let i=0; i<10; i++) {
+        roadLines.push({y: i * 50});
+    }
+
+    rrRunning = true;
+    document.getElementById("rr-ui").style.display = "none";
+    document.getElementById("rr-over-ui").style.display = "none";
+    document.getElementById("rr-hud").style.display = "flex";
+    
+    rrLoop();
+}
+
+function rrGameOver() {
+    rrRunning = false;
+    cancelAnimationFrame(rrAnimId);
+    document.getElementById("rr-over-ui").style.display = "flex";
+    document.getElementById("rr-final-score").innerText = "DISTANCE: " + Math.floor(rrScore) + " Miles";
+    document.getElementById("rr-hud").style.display = "none";
+}
+
+function rrLoop() {
+    if (!rrRunning) return;
+    rrAnimId = requestAnimationFrame(rrLoop);
+    
+    // Clear
+    rrCtx.fillStyle = "#2c3e50"; // Grass color
+    rrCtx.fillRect(0, 0, rrCanvas.width, rrCanvas.height);
+    
+    // Draw Road
+    const roadX = 100;
+    const roadW = 440;
+    rrCtx.fillStyle = "#555"; // Road color
+    rrCtx.fillRect(roadX, 0, roadW, rrCanvas.height);
+    
+    // Borders
+    rrCtx.fillStyle = "#fff";
+    rrCtx.fillRect(roadX - 10, 0, 10, rrCanvas.height);
+    rrCtx.fillRect(roadX + roadW, 0, 10, rrCanvas.height);
+
+    // Update Speed & Score
+    rrSpeed += 0.005; // Acceleration
+    rrScore += rrSpeed * 0.01;
+    rrFrame++;
+
+    // Move Road Lines
+    rrCtx.fillStyle = "#fff";
+    roadLines.forEach(line => {
+        line.y += rrSpeed * 2;
+        if(line.y > rrCanvas.height) line.y = -50;
+        rrCtx.fillRect(rrCanvas.width/2 - 5, line.y, 10, 30);
+    });
+
+    // Move Player
+    if (rrKeys.left && rrPlayer.x > roadX) rrPlayer.x -= 6;
+    if (rrKeys.right && rrPlayer.x < roadX + roadW - rrPlayer.width) rrPlayer.x += 6;
+
+    // Draw Player (Bike)
+    rrCtx.fillStyle = "#e74c3c"; // Red bike
+    rrCtx.fillRect(rrPlayer.x, rrPlayer.y, rrPlayer.width, rrPlayer.height);
+    // Bike detail
+    rrCtx.fillStyle = "#000"; 
+    rrCtx.fillRect(rrPlayer.x + 10, rrPlayer.y - 10, 20, 10); // Handlebars
+
+    // Spawn Obstacles (Cars)
+    if (rrFrame % Math.floor(600 / rrSpeed) === 0) {
+        let obsX = roadX + Math.random() * (roadW - 50);
+        rrObstacles.push({ x: obsX, y: -100, w: 45, h: 70, color: "#3498db" });
+    }
+
+    // Handle Obstacles
+    for (let i = 0; i < rrObstacles.length; i++) {
+        let obs = rrObstacles[i];
+        obs.y += rrSpeed * 1.5; // Cars move slower or relative to player
+        
+        // Draw Car
+        rrCtx.fillStyle = obs.color;
+        rrCtx.fillRect(obs.x, obs.y, obs.w, obs.h);
+        
+        // Collision Detection
+        if (
+            rrPlayer.x < obs.x + obs.w &&
+            rrPlayer.x + rrPlayer.width > obs.x &&
+            rrPlayer.y < obs.y + obs.h &&
+            rrPlayer.height + rrPlayer.y > obs.y
+        ) {
+            rrGameOver();
+        }
+
+        // Remove if off screen
+        if (obs.y > rrCanvas.height) {
+            rrObstacles.splice(i, 1);
+            i--;
+        }
+    }
+
+    // Update HUD
+    document.getElementById("rr-speed").innerText = Math.floor(rrSpeed * 10);
+    document.getElementById("rr-score").innerText = Math.floor(rrScore);
 }
 
 // Initial Open
