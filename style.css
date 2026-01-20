@@ -44,10 +44,10 @@ textarea {
 
 /* --- DESKTOP ICONS --- */
 .desktop-icons {
-    padding: 60px;
+    padding: 30px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 60px;
     position: absolute;
     top: 0;
     left: 0;
@@ -70,9 +70,9 @@ textarea {
 }
 
 .icon img {
-    width: 100px;
+    width: 75px;
     /* Slightly smaller icon to make text pop */
-    height: 100px;
+    height: 75px;
     margin-bottom: 8px;
     image-rendering: pixelated;
 }

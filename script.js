@@ -114,7 +114,6 @@ function makeDraggable(element, handle) {
         const rect = element.getBoundingClientRect();
 
         // Handle initial center positioning
-        // If element is centered via CSS transform, dragging breaks it unless reset
         if (window.getComputedStyle(element).transform !== 'none') {
             element.style.transform = "none";
             element.style.left = rect.left + "px";
@@ -142,3 +141,6 @@ function makeDraggable(element, handle) {
 // Apply Drag to both windows
 makeDraggable(document.getElementById("portfolio-window"), document.getElementById("drag-handle"));
 makeDraggable(document.getElementById("credits-window"), document.getElementById("credits-handle"));
+
+// === AUTO OPEN ON LOAD ===
+openPortfolio();
