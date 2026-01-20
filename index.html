@@ -18,26 +18,17 @@
 
 <body>
 
-    <!-- 1. DESKTOP ICONS -->
+    <!-- 1. DESKTOP ICONS (CLEANED) -->
     <div class="desktop-icons">
         <div class="icon" ondblclick="openPortfolio()">
             <img src="assets/myComputer.png" alt="My Computer">
             <span>My Showcase</span>
         </div>
 
-        <div class="icon" onclick="window.open('https://www.linkedin.com/in/jay-damania', '_blank')">
-            <img src="assets/showcaseIcon.png" alt="LinkedIn">
-            <span>LinkedIn</span>
-        </div>
-
-        <div class="icon">
-            <img src="assets/scrabbleIcon.png" alt="Files">
-            <span>Work Files</span>
-        </div>
-
-        <div class="icon" onclick="window.open('resume.pdf')">
-            <img src="assets/credits.png" alt="Resume">
-            <span>Resume.pdf</span>
+        <!-- NEW CREDITS APP -->
+        <div class="icon" onclick="openCredits()">
+            <img src="assets/credits.png" alt="Credits">
+            <span>Credits</span>
         </div>
     </div>
 
@@ -454,7 +445,39 @@
         </div>
     </div>
 
-    <!-- 3. TASKBAR -->
+    <!-- 3. NEW CREDITS WINDOW -->
+    <div class="window" id="credits-window">
+        <div class="title-bar" id="credits-handle">
+            <div class="title-bar-text">Credits.txt</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close" onclick="closeCredits()"></button>
+            </div>
+        </div>
+        <div class="window-body"
+            style="padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <img src="assets/myComputer.png" style="width: 64px; margin-bottom: 20px;">
+            <h2 class="serif-sub" style="margin-top:0;">ACKNOWLEDGEMENTS</h2>
+
+            <div style="border: 4px solid #000; padding: 15px; background: #fff; margin-bottom: 20px; width: 100%;">
+                <p class="body-text" style="margin: 0;">
+                    <strong>ORIGINAL CONCEPT / 3D INSPIRATION:</strong><br>
+                    Whole 3D Model of Computer is Copy From <u>Henry Heffernan</u>
+                </p>
+            </div>
+
+            <div style="border: 4px solid #000; padding: 15px; background: #fff; width: 100%;">
+                <p class="body-text" style="margin: 0;">
+                    <strong>INNER SIGHT & DEVELOPMENT:</strong><br>
+                    Inner Sight is Created by <u>Jay Damania</u>
+                </p>
+            </div>
+
+            <button onclick="closeCredits()"
+                style="margin-top: 20px; padding: 10px 30px; font-size: 18px; font-weight: bold; cursor: pointer;">OK</button>
+        </div>
+    </div>
+
+    <!-- 4. TASKBAR -->
     <div class="taskbar">
         <button class="start-btn" onclick="toggleStartMenu()">
             <img src="assets/windowsStartIcon.png" alt="Start">
@@ -472,7 +495,7 @@
         </div>
     </div>
 
-    <!-- 4. START MENU -->
+    <!-- 5. START MENU -->
     <div class="start-menu" id="start-menu">
         <div class="sidebar-strip"><strong>Windows98</strong></div>
         <div class="menu-items">
@@ -480,9 +503,9 @@
                 <img src="assets/myComputer.png">
                 <span>Programs</span>
             </div>
-            <div class="menu-item">
-                <img src="assets/showcaseIcon.png">
-                <span>Documents</span>
+            <div class="menu-item" onclick="openCredits()">
+                <img src="assets/credits.png">
+                <span>Credits</span>
             </div>
             <div class="menu-item">
                 <img src="assets/doomIcon.png">

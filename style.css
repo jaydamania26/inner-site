@@ -44,7 +44,7 @@ textarea {
 
 /* --- DESKTOP ICONS --- */
 .desktop-icons {
-    padding: 20px;
+    padding: 60px;
     display: flex;
     flex-direction: column;
     gap: 40px;
@@ -70,9 +70,9 @@ textarea {
 }
 
 .icon img {
-    width: 56px;
+    width: 100px;
     /* Slightly smaller icon to make text pop */
-    height: 56px;
+    height: 100px;
     margin-bottom: 8px;
     image-rendering: pixelated;
 }
@@ -102,6 +102,22 @@ textarea {
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
     /* Harder shadow */
     border: 2px solid #dfdfdf;
+}
+
+/* --- NEW CREDITS WINDOW --- */
+#credits-window {
+    width: 450px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    /* Higher than portfolio */
+    display: none;
+    flex-direction: column;
+    box-shadow: 8px 8px 0px #000;
+    border: 2px solid #fff;
+    background: #c0c0c0;
 }
 
 .window-body {
@@ -592,6 +608,10 @@ textarea {
         left: 0;
         transform: none;
         border: none;
+    }
+
+    #credits-window {
+        width: 90%;
     }
 
     .window-body {

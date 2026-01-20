@@ -14,12 +14,11 @@ setInterval(updateClock, 1000);
 updateClock();
 
 /* ========================
-   2. WINDOW LOGIC
+   2. WINDOW LOGIC (MAIN PORTFOLIO)
    ======================== */
 const windowEl = document.getElementById("portfolio-window");
 const taskTab = document.getElementById("taskbar-tab");
 
-// Open Window
 function openPortfolio() {
     windowEl.style.display = "flex";
     taskTab.style.display = "flex";
@@ -27,20 +26,17 @@ function openPortfolio() {
     document.querySelector('.start-btn').style.borderStyle = "outset";
 }
 
-// Close Window
 function closePortfolio() {
     windowEl.style.display = "none";
     taskTab.style.display = "none";
 }
 
-// Minimize (Toggle visibility)
 function minimizeWindow() {
     windowEl.style.display = "none";
     taskTab.style.borderStyle = "outset";
     taskTab.style.background = "#c0c0c0";
 }
 
-// Toggle from Taskbar
 function toggleMinimize() {
     if (windowEl.style.display === "none") {
         windowEl.style.display = "flex";
@@ -53,7 +49,23 @@ function toggleMinimize() {
 }
 
 /* ========================
-   3. NAVIGATION (Sidebar)
+   3. CREDITS WINDOW LOGIC
+   ======================== */
+const creditsWindow = document.getElementById("credits-window");
+
+function openCredits() {
+    creditsWindow.style.display = "flex";
+    document.getElementById('start-menu').classList.remove('show');
+    // Ensure it pops on top
+    creditsWindow.style.zIndex = "30";
+}
+
+function closeCredits() {
+    creditsWindow.style.display = "none";
+}
+
+/* ========================
+   4. NAVIGATION (Sidebar)
    ======================== */
 function navigate(sectionId, linkElement) {
     document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
@@ -63,7 +75,7 @@ function navigate(sectionId, linkElement) {
 }
 
 /* ========================
-   4. START MENU LOGIC
+   5. START MENU LOGIC
    ======================== */
 function toggleStartMenu() {
     const menu = document.getElementById('start-menu');
@@ -88,60 +100,45 @@ document.addEventListener('click', (e) => {
 });
 
 /* ========================
-   5. DRAGGABLE WINDOW
+   6. DRAGGABLE LOGIC (GENERIC)
    ======================= */
-const dragHandle = document.getElementById("drag-handle");
-let isDragging = false;
-let startX, startY, initialLeft, initialTop;
+function makeDraggable(element, handle) {
+    let isDragging = false;
+    let startX, startY, initialLeft, initialTop;
 
-dragHandle.addEventListener("mousedown", (e) => {
-    if (e.target.tagName === "BUTTON") return;
-    isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    const rect = windowEl.getBoundingClientRect();
-    initialLeft = rect.left;
-    initialTop = rect.top;
-    windowEl.style.transform = "none";
-    windowEl.style.left = initialLeft + "px";
-    windowEl.style.top = initialTop + "px";
-});
+    handle.addEventListener("mousedown", (e) => {
+        if (e.target.tagName === "BUTTON") return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = element.getBoundingClientRect();
 
-document.addEventListener("mousemove", (e) => {
-    if (isDragging) {
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        windowEl.style.left = `${initialLeft + dx}px`;
-        windowEl.style.top = `${initialTop + dy}px`;
-    }
-});
+        // Handle initial center positioning
+        // If element is centered via CSS transform, dragging breaks it unless reset
+        if (window.getComputedStyle(element).transform !== 'none') {
+            element.style.transform = "none";
+            element.style.left = rect.left + "px";
+            element.style.top = rect.top + "px";
+        }
 
-document.addEventListener("mouseup", () => {
-    isDragging = false;
-});
+        initialLeft = rect.left;
+        initialTop = rect.top;
+    });
 
-/* ========================
-   6. RIGHT CLICK CONTEXT MENU (REFRESH SYSTEM)
-   ======================== */
-const contextMenu = document.getElementById("context-menu");
-const desktopArea = document.getElementById("desktop-area");
+    document.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            element.style.left = `${initialLeft + dx}px`;
+            element.style.top = `${initialTop + dy}px`;
+        }
+    });
 
-// Show menu on Right Click
-document.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
+    document.addEventListener("mouseup", () => {
+        isDragging = false;
+    });
+}
 
-    // Only show if clicking on desktop background or body, NOT inside the portfolio window
-    if (!windowEl.contains(e.target) || windowEl.style.display === 'none') {
-        const { clientX: mouseX, clientY: mouseY } = e;
-        contextMenu.style.top = `${mouseY}px`;
-        contextMenu.style.left = `${mouseX}px`;
-        contextMenu.style.display = "block";
-    }
-});
-
-// Close menu on Left Click
-document.addEventListener("click", (e) => {
-    if (e.target.offsetParent != contextMenu) {
-        contextMenu.style.display = "none";
-    }
-});
+// Apply Drag to both windows
+makeDraggable(document.getElementById("portfolio-window"), document.getElementById("drag-handle"));
+makeDraggable(document.getElementById("credits-window"), document.getElementById("credits-handle"));
