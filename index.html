@@ -25,13 +25,19 @@
             <span>My Showcase</span>
         </div>
 
+        <!-- GAME ICON -->
+        <div class="icon" ondblclick="openGame()">
+            <img src="assets/doomIcon.png" alt="Game">
+            <span>ZOMBIE.EXE</span>
+        </div>
+
         <div class="icon" onclick="openCredits()">
             <img src="assets/credits.png" alt="Credits">
             <span>Credits</span>
         </div>
     </div>
 
-    <!-- 2. THE MAIN LARGE WINDOW -->
+    <!-- 2. THE MAIN LARGE WINDOW (Portfolio) -->
     <div class="window" id="portfolio-window">
         <!-- Title Bar -->
         <div class="title-bar" id="drag-handle">
@@ -41,12 +47,13 @@
             </div>
             <div class="title-bar-controls">
                 <button aria-label="Minimize" onclick="minimizeWindow()"></button>
-                <button aria-label="Maximize"></button>
+                <!-- ADDED MAXIMIZE FUNCTION HERE -->
+                <button aria-label="Maximize" onclick="toggleMaximize()"></button>
                 <button aria-label="Close" onclick="closePortfolio()"></button>
             </div>
         </div>
 
-        <!-- Window Body (Split Layout: Sidebar + Content) -->
+        <!-- Window Body -->
         <div class="window-body">
 
             <!-- LEFT SIDEBAR -->
@@ -218,7 +225,7 @@
 
                     <hr class="retro-hr" style="border-top: 4px double #000;">
 
-                    <!-- NEW AUTOMATION SECTION -->
+                    <!-- AUTOMATION SECTION -->
                     <div class="section-banner">
                         <img src="assets/doomIcon.png" alt="Automation" class="banner-img">
                         <h1 class="serif-big" style="margin-bottom:0">AUTOMATION ARCHITECT</h1>
@@ -269,75 +276,6 @@
                             <li>Standardized production reporting.</li>
                         </ul>
                     </div>
-
-                    <!-- AUTO PROJECT 3 -->
-                    <div class="project-card">
-                        <h2 class="serif-header">Project 03: Macy’s Portal Bot</h2>
-                        <p class="body-text">
-                            <strong>Tech:</strong> Python, Selenium<br>
-                            <strong>Client:</strong> Macy’s
-                        </p>
-                        <p class="body-text">
-                            Creating Packing Lists on the portal involved complex forms. My bot handles form filling and
-                            table management automatically.
-                        </p>
-                        <ul class="detail-list">
-                            <li>Processing time: <strong>65 mins -> < 1 min</strong>.</li>
-                            <li>Enabled bulk document processing.</li>
-                        </ul>
-                    </div>
-
-                    <!-- AUTO PROJECT 4 -->
-                    <div class="project-card">
-                        <h2 class="serif-header">Project 04: Coupa Invoice Auto</h2>
-                        <p class="body-text">
-                            <strong>Tech:</strong> Python, PDF Parsing<br>
-                            <strong>Category:</strong> Finance Automation
-                        </p>
-                        <p class="body-text">
-                            Vendor invoice data arrived in unstructured PDFs. The system extracts data and maps it
-                            directly to Coupa fields.
-                        </p>
-                        <ul class="detail-list">
-                            <li>Cleared large invoice backlogs.</li>
-                            <li>Reduced manual workload for finance teams.</li>
-                        </ul>
-                    </div>
-
-                    <!-- AUTO PROJECT 5 -->
-                    <div class="project-card">
-                        <h2 class="serif-header">Project 05: WUSA File Manager</h2>
-                        <p class="body-text">
-                            <strong>Tech:</strong> Python, OS Automation<br>
-                            <strong>Client:</strong> Walmart USA
-                        </p>
-                        <p class="body-text">
-                            Warehouse files were scattered with bad naming. This tool automates file merging, renaming,
-                            and folder placement.
-                        </p>
-                        <ul class="detail-list">
-                            <li>Eliminated file storage chaos.</li>
-                            <li><strong>Zero</strong> manual intervention required.</li>
-                        </ul>
-                    </div>
-
-                    <!-- AUTO PROJECT 6 -->
-                    <div class="project-card">
-                        <h2 class="serif-header">Project 06: Damco FCR Bot</h2>
-                        <p class="body-text">
-                            <strong>Tech:</strong> Python, Selenium<br>
-                            <strong>Category:</strong> Logistics
-                        </p>
-                        <p class="body-text">
-                            FCR creation was repetitive. I automated the generation on Damco systems with
-                            auto-notifications.
-                        </p>
-                        <ul class="detail-list">
-                            <li>Creation time: <strong>55 mins -> 30 secs</strong>.</li>
-                            <li>Improved SLA compliance.</li>
-                        </ul>
-                    </div>
-
                 </div>
 
                 <!-- SECTION: SKILLS & INTERESTS -->
@@ -394,8 +332,9 @@
                     </p>
 
                     <div class="contact-grid">
+                        <!-- FIX: CHANGED TO GMAIL PNG AS REQUESTED -->
                         <a href="mailto:jaydamania26@gmail.com" class="contact-card">
-                            <img src="assets/outlook_express.png" class="contact-icon" alt="Email">
+                            <img src="picture/gmail.png" class="contact-icon" alt="Email">
                             <div class="contact-info">
                                 <strong>EMAIL</strong>
                                 <span>jaydamania26@gmail.com</span>
@@ -444,7 +383,43 @@
         </div>
     </div>
 
-    <!-- 3. NEW CREDITS WINDOW -->
+    <!-- 3. ZOMBIE GAME WINDOW -->
+    <div class="window" id="game-window" style="display: none; width: 660px; height: 550px;">
+        <div class="title-bar" id="game-handle">
+            <div class="title-bar-text">ZOMBIE.EXE - Shareware v1.0</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close" onclick="closeGame()"></button>
+            </div>
+        </div>
+        <div class="window-body game-body">
+            <!-- CRT Monitor Scanline Effect -->
+            <div class="crt-overlay"></div>
+
+            <canvas id="gameCanvas" width="640" height="480"></canvas>
+
+            <!-- Game UI Overlay (Start Screen) -->
+            <div id="game-ui">
+                <h1 class="game-title">UNDEAD_OVERFLOW</h1>
+                <p class="game-text">WASD to Move | Mouse to Aim | Click to Shoot</p>
+                <button class="retro-btn" onclick="startGame()">INSERT COIN (START)</button>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div id="game-over-ui" style="display:none;">
+                <h1 class="game-title" style="color:red;">SYSTEM FATAL ERROR</h1>
+                <p class="game-text" id="final-score">SCORE: 0</p>
+                <button class="retro-btn" onclick="startGame()">REBOOT SYSTEM</button>
+            </div>
+
+            <!-- In-Game HUD -->
+            <div class="game-hud" id="game-hud" style="display:none;">
+                <span>HP: <span id="hud-hp">100</span>%</span>
+                <span>SCORE: <span id="hud-score">00000</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. CREDITS WINDOW -->
     <div class="window" id="credits-window">
         <div class="title-bar" id="credits-handle">
             <div class="title-bar-text">Credits.txt</div>
@@ -476,17 +451,26 @@
         </div>
     </div>
 
-    <!-- 4. TASKBAR -->
+    <!-- 5. TASKBAR -->
     <div class="taskbar">
         <button class="start-btn" onclick="toggleStartMenu()">
             <img src="assets/windowsStartIcon.png" alt="Start">
             <b>Start</b>
         </button>
         <div class="divider"></div>
+
+        <!-- Portfolio Tab -->
         <div class="task-tab" id="taskbar-tab" onclick="toggleMinimize()" style="display: none;">
             <img src="assets/showcaseIcon.png">
             <span>My Showcase</span>
         </div>
+
+        <!-- Game Tab -->
+        <div class="task-tab" id="game-taskbar-tab" style="display: none; background: #000; color: #00ff00;">
+            <img src="assets/doomIcon.png">
+            <span>ZOMBIE.EXE</span>
+        </div>
+
         <div class="spacer"></div>
         <div class="tray">
             <img src="assets/volumeOn.png" style="height:18px; margin-right:5px;">
@@ -494,7 +478,7 @@
         </div>
     </div>
 
-    <!-- 5. START MENU -->
+    <!-- 6. START MENU -->
     <div class="start-menu" id="start-menu">
         <div class="sidebar-strip"><strong>Windows98</strong></div>
         <div class="menu-items">
@@ -502,13 +486,13 @@
                 <img src="assets/myComputer.png">
                 <span>Programs</span>
             </div>
+            <div class="menu-item" onclick="openGame()">
+                <img src="assets/doomIcon.png">
+                <span>Games > Zombie.exe</span>
+            </div>
             <div class="menu-item" onclick="openCredits()">
                 <img src="assets/credits.png">
                 <span>Credits</span>
-            </div>
-            <div class="menu-item">
-                <img src="assets/doomIcon.png">
-                <span>Run...</span>
             </div>
             <div class="hor-divider"></div>
             <div class="menu-item" onclick="location.reload()">

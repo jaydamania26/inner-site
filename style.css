@@ -1,25 +1,33 @@
 /* --- CORE OS STYLES --- */
 body {
     background-color: #008080;
-    /* Windows Teal */
     margin: 0;
     padding: 0;
-    /* THE BIG RETRO FONT UPDATE */
     font-family: 'Pixelify Sans', 'MS Sans Serif', Arial, sans-serif;
     overflow: hidden;
     height: 100vh;
     user-select: none;
 }
 
-/* --- OVERRIDE 98.CSS DEFAULTS FOR BIGGER TEXT --- */
+/* --- OVERRIDE 98.CSS DEFAULTS --- */
 .window {
     font-size: 16px !important;
-    /* Bump default UI size */
+}
+
+/* MAXIMIZE CLASS (NEW) */
+.window.maximized {
+    width: 100% !important;
+    height: calc(100% - 38px) !important;
+    /* Subtract taskbar height */
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    border: none;
+    z-index: 100;
 }
 
 .title-bar {
     height: 32px !important;
-    /* Taller title bar */
 }
 
 .title-bar-text {
@@ -71,7 +79,6 @@ textarea {
 
 .icon img {
     width: 75px;
-    /* Slightly smaller icon to make text pop */
     height: 75px;
     margin-bottom: 8px;
     image-rendering: pixelated;
@@ -80,11 +87,9 @@ textarea {
 .icon span {
     color: white;
     font-size: 14px;
-    /* Bigger desktop font */
     font-family: 'Pixelify Sans', sans-serif;
     text-shadow: 2px 2px 0 #000;
     background-color: rgba(0, 0, 0, 0.1);
-    /* Legibility */
     padding: 2px 4px;
 }
 
@@ -100,8 +105,9 @@ textarea {
     display: none;
     flex-direction: column;
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
-    /* Harder shadow */
     border: 2px solid #dfdfdf;
+    transition: width 0.2s, height 0.2s, top 0.2s, left 0.2s;
+    /* Smooth maximize */
 }
 
 /* --- NEW CREDITS WINDOW --- */
@@ -112,7 +118,6 @@ textarea {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 20;
-    /* Higher than portfolio */
     display: none;
     flex-direction: column;
     box-shadow: 8px 8px 0px #000;
@@ -120,6 +125,98 @@ textarea {
     background: #c0c0c0;
 }
 
+/* --- GAME WINDOW STYLES --- */
+.game-body {
+    background-color: #000;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#gameCanvas {
+    background-color: #111;
+    image-rendering: pixelated;
+    border: 2px solid #555;
+    cursor: crosshair;
+}
+
+.crt-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+#game-ui,
+#game-over-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10;
+    text-align: center;
+}
+
+.game-title {
+    font-family: 'Pixelify Sans', sans-serif;
+    color: #00ff00;
+    font-size: 48px;
+    margin-bottom: 10px;
+    text-shadow: 4px 4px 0 #004400;
+}
+
+.game-text {
+    font-family: 'VT323', monospace;
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.retro-btn {
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 20px;
+    background: #c0c0c0;
+    border: 3px outset #fff;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.retro-btn:active {
+    border: 3px inset #fff;
+}
+
+.game-hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'VT323', monospace;
+    font-size: 28px;
+    color: #00ff00;
+    z-index: 6;
+    pointer-events: none;
+    text-shadow: 2px 2px 0 #000;
+}
+
+
+/* --- COMMON LAYOUT --- */
 .window-body {
     flex-grow: 1;
     display: flex;
@@ -134,7 +231,6 @@ textarea {
 .sidebar {
     width: 260px;
     background-color: #c0c0c0;
-    /* Classic grey */
     border-right: 2px solid #000;
     padding: 40px 20px;
     display: flex;
@@ -150,7 +246,6 @@ textarea {
     margin: 0;
     line-height: 0.9;
     color: #000080;
-    /* Navy Blue */
     text-shadow: 2px 2px 0px #fff;
     letter-spacing: -2px;
 }
@@ -177,7 +272,6 @@ textarea {
     font-family: 'Pixelify Sans', sans-serif;
     font-weight: 700;
     font-size: 22px;
-    /* Much Bigger */
     color: #000;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -211,7 +305,6 @@ textarea {
     padding: 40px 50px;
     overflow-y: auto;
     background: white;
-    /* GRID PATTERN BACKGROUND FOR RETRO FEEL */
     background-image:
         linear-gradient(#eee 1px, transparent 1px),
         linear-gradient(90deg, #eee 1px, transparent 1px);
@@ -241,9 +334,7 @@ textarea {
 
 .body-text {
     font-family: 'VT323', monospace;
-    /* TERMINAL STYLE */
     font-size: 26px;
-    /* BIG! */
     line-height: 1.3;
     margin-bottom: 30px;
     color: #222;
@@ -256,7 +347,6 @@ textarea {
     margin-top: 30px;
     margin-bottom: 10px;
     border-bottom: 4px solid #000;
-    /* Thicker line */
     padding-bottom: 5px;
     display: inline-block;
     text-transform: uppercase;
@@ -274,7 +364,6 @@ textarea {
 .detail-list li {
     margin-bottom: 8px;
     list-style-type: square;
-    /* Retro square bullets */
 }
 
 .skills-grid {
@@ -365,12 +454,10 @@ textarea {
     background: #c0c0c0;
     border: 2px solid;
     border-color: #fff #000 #000 #fff;
-    /* Classic 3D look */
     padding: 20px;
     text-decoration: none;
     color: #000;
     transition: none;
-    /* Instant transition for retro feel */
 }
 
 .contact-card:hover {
@@ -380,7 +467,6 @@ textarea {
 .contact-card:active {
     border-color: #000 #fff #fff #000;
     padding: 22px 18px 18px 22px;
-    /* Shift content */
 }
 
 .contact-icon {
@@ -415,7 +501,6 @@ textarea {
     font-size: 24px;
     font-family: 'VT323', monospace;
     background: #ffff00;
-    /* High viz yellow */
     display: inline-block;
 }
 
@@ -423,7 +508,6 @@ textarea {
 .content-section {
     display: none;
     animation: fadeIn 0s;
-    /* No smooth fade for retro feel */
 }
 
 .content-section.active {
@@ -465,7 +549,6 @@ textarea {
     left: 0;
     width: 100%;
     height: 38px;
-    /* Taller taskbar */
     background: #c0c0c0;
     border-top: 2px solid #fff;
     z-index: 1000;
@@ -578,7 +661,6 @@ textarea {
     gap: 12px;
     font-family: 'Pixelify Sans', sans-serif;
     font-size: 18px;
-    /* Bigger menu text */
     cursor: default;
 }
 
@@ -599,80 +681,9 @@ textarea {
     margin: 5px 2px;
 }
 
-/* MOBILE */
-@media (max-width: 800px) {
-    #portfolio-window {
-        width: 100%;
-        height: calc(100% - 38px);
-        top: 0;
-        left: 0;
-        transform: none;
-        border: none;
-    }
-
-    #credits-window {
-        width: 90%;
-    }
-
-    .window-body {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 15px;
-        align-items: center;
-        border-right: none;
-        border-bottom: 2px solid #000;
-    }
-
-    .sidebar-header h2 {
-        font-size: 32px;
-        margin-right: 20px;
-    }
-
-    .role-subtitle {
-        display: none;
-    }
-
-    .nav-links {
-        flex-direction: row;
-        gap: 15px;
-    }
-
-    .nav-item {
-        font-size: 18px;
-        white-space: nowrap;
-    }
-
-    .main-content {
-        padding: 20px;
-    }
-
-    .serif-big {
-        font-size: 42px;
-    }
-
-    .body-text {
-        font-size: 22px;
-    }
-
-    .skills-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .contact-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* CEO HIGHLIGHT BOX */
+/* HIGHLIGHT BOX */
 .highlight-box {
     background-color: #ffffe0;
-    /* Light yellow note style */
     border: 4px solid #000;
     padding: 20px;
     margin: 25px 0;
