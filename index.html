@@ -7,11 +7,11 @@
     <title>Jay Damania - Showcase '25</title>
     <!-- Windows 98 CSS Library -->
     <link rel="stylesheet" href="https://unpkg.com/98.css">
-    <!-- RETRO FONTS -->
+    <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=VT323&display=swap"
-        rel="stylesheet">
+    <!-- 'Ultra' is the fat serif font for the Title to match reference -->
+    <link href="https://fonts.googleapis.com/css2?family=Ultra&family=Pixelify+Sans:wght@400;700&family=VT323&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -33,7 +33,6 @@
 
         <!-- ROAD RASH GAME ICON -->
         <div class="icon" ondblclick="openRR()">
-            <!-- Reusing doomIcon but shifting hue to look different (Blue/Purple) -->
             <img src="assets/doomIcon.png" style="filter: hue-rotate(240deg);" alt="Road Rash">
             <span>ROADRASH.EXE</span>
         </div>
@@ -50,7 +49,7 @@
         <div class="title-bar" id="drag-handle">
             <div class="title-bar-text">
                 <img src="assets/showcaseIcon.png" style="height:18px; margin-right:8px; vertical-align:bottom;">
-                Jay Damania - Pro Profile
+                Jay Damania - Showcase 2025
             </div>
             <div class="title-bar-controls">
                 <button aria-label="Minimize" onclick="minimizeWindow()"></button>
@@ -60,325 +59,352 @@
         </div>
 
         <!-- Window Body -->
-        <div class="window-body">
+        <div class="window-body main-body-container">
+            
+            <!-- BACKGROUND TEXTURE (The cloudy/dirty look) -->
+            <div class="grunge-overlay"></div>
 
-            <!-- LEFT SIDEBAR -->
-            <div class="sidebar">
-                <div class="sidebar-header">
-                    <h2>JAY<br>DAMANIA</h2>
-                    <p class="role-subtitle">Business Analyst<br>& SCM Specialist</p>
-                </div>
-
-                <nav class="nav-links">
-                    <a href="#" class="nav-item active" onclick="navigate('home', this)">PROFILE</a>
-                    <a href="#" class="nav-item" onclick="navigate('experience', this)">EXPERIENCE</a>
-                    <a href="#" class="nav-item" onclick="navigate('projects', this)">PROJECTS</a>
-                    <a href="#" class="nav-item" onclick="navigate('skills', this)">SKILLS & INTERESTS</a>
-                    <a href="#" class="nav-item" onclick="navigate('contact', this)">CONTACT</a>
-                </nav>
-
-                <div class="sidebar-footer">
-                    <p>© 2025 Jay Damania</p>
+            <!-- VIEW A: THE SPLASH HOME SCREEN (Matches your reference image) -->
+            <div id="view-splash" class="view-splash">
+                <div class="splash-content">
+                    <h1 class="huge-name">Jay Damania</h1>
+                    <h2 class="pixel-subtitle">BUSINESS ANALYTICS</h2>
+                    
+                    <nav class="splash-nav">
+                        <!-- Clicking these switches to View B (The Detailed Layout) -->
+                        <a href="#" onclick="enterMainLayout('home')">ABOUT</a>
+                        <a href="#" onclick="enterMainLayout('experience')">EXPERIENCE</a>
+                        <a href="#" onclick="enterMainLayout('projects')">PROJECTS</a>
+                        <a href="#" onclick="enterMainLayout('contact')">CONTACT</a>
+                    </nav>
                 </div>
             </div>
 
-            <!-- RIGHT CONTENT AREA -->
-            <div class="main-content">
+            <!-- VIEW B: THE DETAILED SIDEBAR LAYOUT (Hidden initially) -->
+            <div id="view-content" class="view-content" style="display: none;">
+                <!-- LEFT SIDEBAR -->
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <h2>JAY<br>DAMANIA</h2>
+                        <p class="role-subtitle">Business Analyst<br>& SCM Specialist</p>
+                    </div>
 
-                <!-- SECTION: PROFILE (Home) -->
-                <div id="home" class="content-section active">
-                    <h1 class="serif-big">PROFESSIONAL PROFILE</h1>
+                    <nav class="nav-links">
+                        <a href="#" class="nav-item active" onclick="navigate('home', this)">PROFILE</a>
+                        <a href="#" class="nav-item" onclick="navigate('experience', this)">EXPERIENCE</a>
+                        <a href="#" class="nav-item" onclick="navigate('projects', this)">PROJECTS</a>
+                        <a href="#" class="nav-item" onclick="navigate('skills', this)">SKILLS & INTERESTS</a>
+                        <a href="#" class="nav-item" onclick="navigate('contact', this)">CONTACT</a>
+                        
+                        <!-- Back to Splash Button -->
+                        <div style="margin-top: 20px; border-top: 2px solid #000; padding-top: 10px;">
+                            <a href="#" class="nav-item" onclick="returnToSplash()" style="font-size: 18px; color: #555;">&lt; BACK TO START</a>
+                        </div>
+                    </nav>
 
-                    <!-- ACHIEVEMENTS HIGHLIGHT BOX -->
-                    <div class="highlight-box">
-                        <div class="highlight-icon">🏆</div>
-                        <div class="highlight-content">
-                            <strong>Professional Milestones</strong>
-                            <p>
-                                Promoted to <strong>FTE</strong> in record time.
-                                <br>• Won "Young Talent Award" <strong>twice</strong> in 8 months.
-                                <br>• Saved <strong>0.84 Man-Years</strong> via automation.
-                                <br>• <strong>4x</strong> Tech Friday Winner.
+                    <div class="sidebar-footer">
+                        <p>© 2025 Jay Damania</p>
+                    </div>
+                </div>
+
+                <!-- RIGHT CONTENT AREA -->
+                <div class="main-content-scroll">
+
+                    <!-- SECTION: PROFILE (Home) -->
+                    <div id="home" class="content-section active">
+                        <h1 class="serif-big">PROFESSIONAL PROFILE</h1>
+
+                        <!-- ACHIEVEMENTS HIGHLIGHT BOX -->
+                        <div class="highlight-box">
+                            <div class="highlight-icon">🏆</div>
+                            <div class="highlight-content">
+                                <strong>Professional Milestones</strong>
+                                <p>
+                                    Promoted to <strong>FTE</strong> in record time.
+                                    <br>• Won "Young Talent Award" <strong>twice</strong> in 8 months.
+                                    <br>• Saved <strong>0.84 Man-Years</strong> via automation.
+                                    <br>• <strong>4x</strong> Tech Friday Winner.
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="body-text">
+                            I am a detail-oriented professional with hands-on experience in
+                            <strong>garment manufacturing operations, client coordination, production tracking, and
+                                logistics</strong>.
+                        </p>
+
+                        <div class="pixel-art-container">
+                            <img src="my-animation.gif" alt="Jay Workspace" class="pixel-img">
+                        </div>
+
+                        <p class="body-text">
+                            My career journey reflects steady growth from execution-level responsibilities to roles
+                            involving <strong>end-to-end order lifecycle management, ERP system handling, and export
+                                logistics</strong>.
+                        </p>
+                        <p class="body-text">
+                            Currently working at <strong>Welspun</strong> in <strong>Export Documentation &
+                                Logistics</strong>, aiming for a <strong>Business Analyst role</strong>.
+                        </p>
+
+                        <!-- RESUME CTA -->
+                        <div class="resume-cta">
+                            <img src="picture/printer.gif" style="width: 54px; height: auto;">
+                            <div>
+                                <strong>WANT THE FULL RESUME?</strong><br>
+                                <a href="resume.pdf" target="_blank">CLICK TO PRINT / DOWNLOAD PDF</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: EXPERIENCE -->
+                    <div id="experience" class="content-section">
+                        <h1 class="serif-big">EXPERIENCE</h1>
+
+                        <!-- WELSPUN -->
+                        <div class="job-block">
+                            <div class="job-header">
+                                <h2 class="company-name">WELSPUN</h2>
+                                <span class="dates">PRESENT</span>
+                            </div>
+                            <h3 class="job-role">Trainee – Export Logistics</h3>
+                            <p class="body-text">
+                                Currently involved in export documentation and logistics operations within a large corporate
+                                environment.
                             </p>
-                        </div>
-                    </div>
-
-                    <p class="body-text">
-                        I am a detail-oriented professional with hands-on experience in
-                        <strong>garment manufacturing operations, client coordination, production tracking, and
-                            logistics</strong>.
-                    </p>
-
-                    <div class="pixel-art-container">
-                        <img src="my-animation.gif" alt="Jay Workspace" class="pixel-img">
-                    </div>
-
-                    <p class="body-text">
-                        My career journey reflects steady growth from execution-level responsibilities to roles
-                        involving <strong>end-to-end order lifecycle management, ERP system handling, and export
-                            logistics</strong>.
-                    </p>
-                    <p class="body-text">
-                        Currently working at <strong>Welspun</strong> in <strong>Export Documentation &
-                            Logistics</strong>, aiming for a <strong>Business Analyst role</strong>.
-                    </p>
-
-                    <!-- RESUME CTA -->
-                    <div class="resume-cta">
-                        <img src="picture/printer.gif" style="width: 54px; height: auto;">
-                        <div>
-                            <strong>WANT THE FULL RESUME?</strong><br>
-                            <a href="resume.pdf" target="_blank">CLICK TO PRINT / DOWNLOAD PDF</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION: EXPERIENCE -->
-                <div id="experience" class="content-section">
-                    <h1 class="serif-big">EXPERIENCE</h1>
-
-                    <!-- WELSPUN -->
-                    <div class="job-block">
-                        <div class="job-header">
-                            <h2 class="company-name">WELSPUN</h2>
-                            <span class="dates">PRESENT</span>
-                        </div>
-                        <h3 class="job-role">Trainee – Export Logistics</h3>
-                        <p class="body-text">
-                            Currently involved in export documentation and logistics operations within a large corporate
-                            environment.
-                        </p>
-                        <ul class="detail-list">
-                            <li>Handling export documentation & logistics.</li>
-                            <li>Working with structured corporate processes.</li>
-                            <li>Developing analytical thinking for global export functions.</li>
-                        </ul>
-                    </div>
-
-                    <!-- MFSG GARMENTS -->
-                    <div class="job-block">
-                        <div class="job-header">
-                            <h2 class="company-name">MFSG GARMENTS</h2>
-                            <span class="dates">INTERN -> FTE</span>
-                        </div>
-                        <h3 class="job-role">Client Success Executive</h3>
-                        <p class="body-text">
-                            Built my foundation in operations management, client handling, and production analysis.
-                        </p>
-                        <ul class="detail-list">
-                            <li>Managed buyer-wise order execution.</li>
-                            <li>Maintained daily production tracking via Excel.</li>
-                            <li>Single point of contact for multiple buyers.</li>
-                            <li>Operated custom Mini ERP system.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- SECTION: PROJECTS -->
-                <div id="projects" class="content-section">
-
-                    <div class="section-banner">
-                        <img src="software.gif" alt="Software Projects" class="banner-img">
-                        <h1 class="serif-big" style="margin-bottom:0">KEY DASHBOARDS</h1>
-                    </div>
-                    <p class="body-text">A showcase of the production and analytics systems I utilize and manage.</p>
-
-                    <!-- PROJECT 1: MFSG -->
-                    <div class="project-card">
-                        <h2 class="serif-header">1. MFSG PRODUCTION TRACKING</h2>
-                        <p class="body-text"><strong>CONTEXT:</strong> PRODUCTION OPS</p>
-                        <p class="body-text">
-                            A comprehensive tracking system designed to monitor stitching output and estimate order
-                            completion dates.
-                        </p>
-                        <div class="project-visual">
-                            <img src="mfsg.png" class="project-img-large">
-                            <p class="caption">FIG 1: DAILY PRODUCTION DASHBOARD</p>
-                        </div>
-                    </div>
-
-                    <hr class="retro-hr">
-
-                    <!-- PROJECT 2: WELSPUN PERSONAL -->
-                    <div class="project-card">
-                        <h2 class="serif-header">2. WELSPUN ANALYTICS (PERSONAL)</h2>
-                        <p class="body-text"><strong>CONTEXT:</strong> LOGIC & ANALYSIS</p>
-                        <p class="body-text">
-                            A specialized dashboard for deep-dive analysis. Automates logic checks and visualizes data
-                            sets before reporting.
-                        </p>
-                        <div class="project-visual">
-                            <img src="welspun.png" class="project-img-large">
-                            <p class="caption">FIG 2: PERSONAL ANALYTICS WORKSPACE</p>
-                        </div>
-                    </div>
-
-                    <hr class="retro-hr">
-
-                    <!-- PROJECT 3: WELSPUN OFFICE -->
-                    <div class="project-card">
-                        <h2 class="serif-header">3. WELSPUN CORPORATE OPS</h2>
-                        <p class="body-text"><strong>CONTEXT:</strong> OFFICE & LOGISTICS</p>
-                        <p class="body-text">
-                            The official operational view used for Export Documentation. Handles end-to-end lifecycle of
-                            global shipments.
-                        </p>
-                        <div class="project-visual">
-                            <img src="welspun-office.png" class="project-img-large">
-                            <p class="caption">FIG 3: EXPORT DOC SYSTEM</p>
-                        </div>
-                    </div>
-
-                    <hr class="retro-hr" style="border-top: 4px double #000;">
-
-                    <!-- AUTOMATION SECTION -->
-                    <div class="section-banner">
-                        <img src="assets/doomIcon.png" alt="Automation" class="banner-img">
-                        <h1 class="serif-big" style="margin-bottom:0">AUTOMATION ARCHITECT</h1>
-                    </div>
-
-                    <div class="highlight-box" style="margin-bottom: 30px;">
-                        <div class="highlight-icon">⚙️</div>
-                        <div class="highlight-content">
-                            <strong>Summary of Impact</strong>
-                            <p>
-                                <strong>12</strong> enterprise automation projects deployed.
-                                <br><strong>Tech Friday Hat-trick (4x)</strong>.
-                                <br><strong>Savings:</strong> 0.84 Man-Years.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- AUTO PROJECT 1 -->
-                    <div class="project-card">
-                        <h2 class="serif-header">Project 01: Walmart Doc Validator</h2>
-                        <p class="body-text">
-                            <strong>Tech:</strong> Python, Selenium<br>
-                            <strong>Client:</strong> Walmart USA
-                        </p>
-                        <p class="body-text">
-                            Walmart requires strict accuracy between Invoices and Packing Lists. I automated the
-                            cross-referencing process.
-                        </p>
-                        <ul class="detail-list">
-                            <li>Validation time: <strong>45 mins -> 12 secs</strong>.</li>
-                            <li><strong>99% accuracy</strong> using Fuzzy Logic.</li>
-                            <li>Eliminated last-minute submission errors.</li>
-                        </ul>
-                    </div>
-
-                    <!-- AUTO PROJECT 2 -->
-                    <div class="project-card">
-                        <h2 class="serif-header">Project 02: Sheet Master Updater</h2>
-                        <p class="body-text">
-                            <strong>Tech:</strong> Advanced VBA
-                        </p>
-                        <p class="body-text">
-                            Daily production data was scattered. I built a one-click VBA automation to consolidate
-                            multiple daily sheets into a master file.
-                        </p>
-                        <ul class="detail-list">
-                            <li>Manual Entry: <strong>1 hour -> 2 mins</strong>.</li>
-                            <li>Standardized production reporting.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- SECTION: SKILLS & INTERESTS -->
-                <div id="skills" class="content-section">
-                    <h1 class="serif-big">SKILLS & INTERESTS</h1>
-
-                    <div class="skills-grid">
-                        <div class="skill-col">
-                            <h3 class="serif-header">CORE COMPETENCIES</h3>
                             <ul class="detail-list">
-                                <li>Operations Management</li>
-                                <li>Export Logistics</li>
-                                <li>Excel & Data Tracking</li>
-                                <li>ERP Systems</li>
+                                <li>Handling export documentation & logistics.</li>
+                                <li>Working with structured corporate processes.</li>
+                                <li>Developing analytical thinking for global export functions.</li>
                             </ul>
                         </div>
-                        <div class="skill-col">
-                            <h3 class="serif-header">SOFT SKILLS</h3>
+
+                        <!-- MFSG GARMENTS -->
+                        <div class="job-block">
+                            <div class="job-header">
+                                <h2 class="company-name">MFSG GARMENTS</h2>
+                                <span class="dates">INTERN -> FTE</span>
+                            </div>
+                            <h3 class="job-role">Client Success Executive</h3>
+                            <p class="body-text">
+                                Built my foundation in operations management, client handling, and production analysis.
+                            </p>
                             <ul class="detail-list">
-                                <li>Client Coordination</li>
-                                <li>Process Logic</li>
-                                <li>Analytical Thinking</li>
-                                <li>Team Sync</li>
+                                <li>Managed buyer-wise order execution.</li>
+                                <li>Maintained daily production tracking via Excel.</li>
+                                <li>Single point of contact for multiple buyers.</li>
+                                <li>Operated custom Mini ERP system.</li>
                             </ul>
                         </div>
                     </div>
 
-                    <hr class="retro-hr">
+                    <!-- SECTION: PROJECTS -->
+                    <div id="projects" class="content-section">
 
-                    <div class="extra-section">
-                        <div class="extra-block">
-                            <img src="art.gif" class="icon-header">
-                            <h2 class="serif-sub">ANALYTICAL MINDSET</h2>
+                        <div class="section-banner">
+                            <img src="software.gif" alt="Software Projects" class="banner-img">
+                            <h1 class="serif-big" style="margin-bottom:0">KEY DASHBOARDS</h1>
+                        </div>
+                        <p class="body-text">A showcase of the production and analytics systems I utilize and manage.</p>
+
+                        <!-- PROJECT 1: MFSG -->
+                        <div class="project-card">
+                            <h2 class="serif-header">1. MFSG PRODUCTION TRACKING</h2>
+                            <p class="body-text"><strong>CONTEXT:</strong> PRODUCTION OPS</p>
                             <p class="body-text">
-                                Art requires detail; Operations requires patterns. I visualize data to drive decisions.
+                                A comprehensive tracking system designed to monitor stitching output and estimate order
+                                completion dates.
                             </p>
+                            <div class="project-visual">
+                                <img src="mfsg.png" class="project-img-large">
+                                <p class="caption">FIG 1: DAILY PRODUCTION DASHBOARD</p>
+                            </div>
                         </div>
 
-                        <div class="extra-block">
-                            <img src="music.gif" class="icon-header">
-                            <h2 class="serif-sub">RHYTHM OF BUSINESS</h2>
+                        <hr class="retro-hr">
+
+                        <!-- PROJECT 2: WELSPUN PERSONAL -->
+                        <div class="project-card">
+                            <h2 class="serif-header">2. WELSPUN ANALYTICS (PERSONAL)</h2>
+                            <p class="body-text"><strong>CONTEXT:</strong> LOGIC & ANALYSIS</p>
                             <p class="body-text">
-                                Logistics is about synchronization. My goal is to ensure all parts move in harmony.
+                                A specialized dashboard for deep-dive analysis. Automates logic checks and visualizes data
+                                sets before reporting.
                             </p>
+                            <div class="project-visual">
+                                <img src="welspun.png" class="project-img-large">
+                                <p class="caption">FIG 2: PERSONAL ANALYTICS WORKSPACE</p>
+                            </div>
+                        </div>
+
+                        <hr class="retro-hr">
+
+                        <!-- PROJECT 3: WELSPUN OFFICE -->
+                        <div class="project-card">
+                            <h2 class="serif-header">3. WELSPUN CORPORATE OPS</h2>
+                            <p class="body-text"><strong>CONTEXT:</strong> OFFICE & LOGISTICS</p>
+                            <p class="body-text">
+                                The official operational view used for Export Documentation. Handles end-to-end lifecycle of
+                                global shipments.
+                            </p>
+                            <div class="project-visual">
+                                <img src="welspun-office.png" class="project-img-large">
+                                <p class="caption">FIG 3: EXPORT DOC SYSTEM</p>
+                            </div>
+                        </div>
+
+                        <hr class="retro-hr" style="border-top: 4px double #000;">
+
+                        <!-- AUTOMATION SECTION -->
+                        <div class="section-banner">
+                            <img src="assets/doomIcon.png" alt="Automation" class="banner-img">
+                            <h1 class="serif-big" style="margin-bottom:0">AUTOMATION ARCHITECT</h1>
+                        </div>
+
+                        <div class="highlight-box" style="margin-bottom: 30px;">
+                            <div class="highlight-icon">⚙️</div>
+                            <div class="highlight-content">
+                                <strong>Summary of Impact</strong>
+                                <p>
+                                    <strong>12</strong> enterprise automation projects deployed.
+                                    <br><strong>Tech Friday Hat-trick (4x)</strong>.
+                                    <br><strong>Savings:</strong> 0.84 Man-Years.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- AUTO PROJECT 1 -->
+                        <div class="project-card">
+                            <h2 class="serif-header">Project 01: Walmart Doc Validator</h2>
+                            <p class="body-text">
+                                <strong>Tech:</strong> Python, Selenium<br>
+                                <strong>Client:</strong> Walmart USA
+                            </p>
+                            <p class="body-text">
+                                Walmart requires strict accuracy between Invoices and Packing Lists. I automated the
+                                cross-referencing process.
+                            </p>
+                            <ul class="detail-list">
+                                <li>Validation time: <strong>45 mins -> 12 secs</strong>.</li>
+                                <li><strong>99% accuracy</strong> using Fuzzy Logic.</li>
+                                <li>Eliminated last-minute submission errors.</li>
+                            </ul>
+                        </div>
+
+                        <!-- AUTO PROJECT 2 -->
+                        <div class="project-card">
+                            <h2 class="serif-header">Project 02: Sheet Master Updater</h2>
+                            <p class="body-text">
+                                <strong>Tech:</strong> Advanced VBA
+                            </p>
+                            <p class="body-text">
+                                Daily production data was scattered. I built a one-click VBA automation to consolidate
+                                multiple daily sheets into a master file.
+                            </p>
+                            <ul class="detail-list">
+                                <li>Manual Entry: <strong>1 hour -> 2 mins</strong>.</li>
+                                <li>Standardized production reporting.</li>
+                            </ul>
                         </div>
                     </div>
-                </div>
 
-                <!-- SECTION: CONTACT -->
-                <div id="contact" class="content-section">
-                    <h1 class="serif-big">CONTACT</h1>
-                    <p class="body-text">
-                        Available for Business Analyst roles. Connect via:
-                    </p>
+                    <!-- SECTION: SKILLS & INTERESTS -->
+                    <div id="skills" class="content-section">
+                        <h1 class="serif-big">SKILLS & INTERESTS</h1>
 
-                    <div class="contact-grid">
-                        <a href="mailto:jaydamania26@gmail.com" class="contact-card">
-                            <img src="picture/gmail.png" class="contact-icon" alt="Email">
-                            <div class="contact-info">
-                                <strong>EMAIL</strong>
-                                <span>jaydamania26@gmail.com</span>
+                        <div class="skills-grid">
+                            <div class="skill-col">
+                                <h3 class="serif-header">CORE COMPETENCIES</h3>
+                                <ul class="detail-list">
+                                    <li>Operations Management</li>
+                                    <li>Export Logistics</li>
+                                    <li>Excel & Data Tracking</li>
+                                    <li>ERP Systems</li>
+                                </ul>
                             </div>
-                        </a>
-
-                        <a href="https://www.linkedin.com/in/jay-damania" target="_blank" class="contact-card">
-                            <img src="picture/contact-in.png" class="contact-icon" alt="LinkedIn">
-                            <div class="contact-info">
-                                <strong>LINKEDIN</strong>
-                                <span>Connect Profile</span>
+                            <div class="skill-col">
+                                <h3 class="serif-header">SOFT SKILLS</h3>
+                                <ul class="detail-list">
+                                    <li>Client Coordination</li>
+                                    <li>Process Logic</li>
+                                    <li>Analytical Thinking</li>
+                                    <li>Team Sync</li>
+                                </ul>
                             </div>
-                        </a>
+                        </div>
 
-                        <a href="https://github.com/jaydamania26" target="_blank" class="contact-card">
-                            <img src="picture/contact-gh.png" class="contact-icon" alt="GitHub">
-                            <div class="contact-info">
-                                <strong>GITHUB</strong>
-                                <span>View Repos</span>
-                            </div>
-                        </a>
+                        <hr class="retro-hr">
 
-                        <a href="https://www.instagram.com/jay.damania_02" target="_blank" class="contact-card">
-                            <img src="picture/instagram.png" onerror="this.src='assets/showcaseIcon.png'"
-                                class="contact-icon" alt="Instagram">
-                            <div class="contact-info">
-                                <strong>INSTAGRAM</strong>
-                                <span>@jay.damania_02</span>
+                        <div class="extra-section">
+                            <div class="extra-block">
+                                <img src="art.gif" class="icon-header">
+                                <h2 class="serif-sub">ANALYTICAL MINDSET</h2>
+                                <p class="body-text">
+                                    Art requires detail; Operations requires patterns. I visualize data to drive decisions.
+                                </p>
                             </div>
-                        </a>
+
+                            <div class="extra-block">
+                                <img src="music.gif" class="icon-header">
+                                <h2 class="serif-sub">RHYTHM OF BUSINESS</h2>
+                                <p class="body-text">
+                                    Logistics is about synchronization. My goal is to ensure all parts move in harmony.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="location-box">
-                        <p><strong>LOCATION:</strong> DAMAN, INDIA</p>
-                    </div>
-                </div>
+                    <!-- SECTION: CONTACT -->
+                    <div id="contact" class="content-section">
+                        <h1 class="serif-big">CONTACT</h1>
+                        <p class="body-text">
+                            Available for Business Analyst roles. Connect via:
+                        </p>
 
-            </div>
-        </div>
+                        <div class="contact-grid">
+                            <a href="mailto:jaydamania26@gmail.com" class="contact-card">
+                                <img src="picture/gmail.png" class="contact-icon" alt="Email">
+                                <div class="contact-info">
+                                    <strong>EMAIL</strong>
+                                    <span>jaydamania26@gmail.com</span>
+                                </div>
+                            </a>
+
+                            <a href="https://www.linkedin.com/in/jay-damania" target="_blank" class="contact-card">
+                                <img src="picture/contact-in.png" class="contact-icon" alt="LinkedIn">
+                                <div class="contact-info">
+                                    <strong>LINKEDIN</strong>
+                                    <span>Connect Profile</span>
+                                </div>
+                            </a>
+
+                            <a href="https://github.com/jaydamania26" target="_blank" class="contact-card">
+                                <img src="picture/contact-gh.png" class="contact-icon" alt="GitHub">
+                                <div class="contact-info">
+                                    <strong>GITHUB</strong>
+                                    <span>View Repos</span>
+                                </div>
+                            </a>
+
+                            <a href="https://www.instagram.com/jay.damania_02" target="_blank" class="contact-card">
+                                <img src="picture/instagram.png" onerror="this.src='assets/showcaseIcon.png'"
+                                    class="contact-icon" alt="Instagram">
+                                <div class="contact-info">
+                                    <strong>INSTAGRAM</strong>
+                                    <span>@jay.damania_02</span>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="location-box">
+                            <p><strong>LOCATION:</strong> DAMAN, INDIA</p>
+                        </div>
+                    </div>
+
+                </div> <!-- End Main Content Scroll -->
+            </div> <!-- End View Content -->
+        </div> <!-- End Window Body -->
 
         <!-- Status Bar -->
         <div class="status-bar">

@@ -109,6 +109,102 @@ textarea {
     transition: width 0.2s, height 0.2s, top 0.2s, left 0.2s;
 }
 
+/* WINDOW BODY (Holds Views) */
+.main-body-container {
+    flex-grow: 1;
+    display: flex;
+    position: relative;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* --- THE GRUNGE TEXTURE (Overlay) --- */
+.grunge-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    /* Fakes the cloudy dirty screen look */
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(200,200,200,0.2) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(180,180,180,0.2) 0%, transparent 40%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+    z-index: 1;
+}
+
+/* --- VIEW A: SPLASH SCREEN (Henry Heffernan Style) --- */
+.view-splash {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2; /* Above texture */
+}
+
+.splash-content {
+    text-align: center;
+    animation: fadeIn 1s ease-in;
+}
+
+/* The Huge Name */
+.huge-name {
+    font-family: 'Ultra', serif; /* The Fat Serif */
+    font-size: 8vw; /* Scales with window */
+    color: #333;
+    margin: 0;
+    line-height: 1;
+    text-transform: capitalize;
+    text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+@media (min-width: 1200px) { .huge-name { font-size: 120px; } }
+
+/* The Subtitle */
+.pixel-subtitle {
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 32px;
+    color: #555;
+    margin-top: 10px;
+    margin-bottom: 50px;
+    font-weight: normal;
+    text-shadow: 1px 1px 0 #ddd;
+}
+
+/* The Navigation Links */
+.splash-nav {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.splash-nav a {
+    font-family: 'Ultra', serif;
+    color: #5e18a9; /* That specific purple */
+    font-size: 20px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: color 0.2s;
+}
+
+.splash-nav a:hover {
+    color: #000;
+}
+
+
+/* --- VIEW B: CONTENT LAYOUT (Sidebar + Content) --- */
+.view-content {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    background: #fff;
+}
+
+
 /* --- CREDITS WINDOW --- */
 #credits-window {
     width: 450px;
@@ -319,7 +415,7 @@ textarea {
 }
 
 /* --- RIGHT CONTENT AREA --- */
-.main-content {
+.main-content-scroll {
     flex-grow: 1;
     padding: 40px 50px;
     overflow-y: auto;
@@ -332,9 +428,8 @@ textarea {
 
 /* TYPOGRAPHY */
 .serif-big {
-    font-family: 'Pixelify Sans', sans-serif;
+    font-family: 'Ultra', serif;
     font-size: 52px;
-    font-weight: 700;
     margin-top: 0;
     margin-bottom: 25px;
     color: #000;
@@ -524,14 +619,9 @@ textarea {
 }
 
 /* ANIMATIONS */
-.content-section {
-    display: none;
-    animation: fadeIn 0s;
-}
-
-.content-section.active {
-    display: block;
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.content-section { display: none; animation: fadeIn 0.3s; }
+.content-section.active { display: block; }
 
 /* BOTTOM STATUS BAR */
 .status-bar {

@@ -28,6 +28,9 @@ function openPortfolio() {
     taskTab.style.display = "flex";
     document.getElementById('start-menu').classList.remove('show');
     bringToFront(windowEl);
+    
+    // Ensure we start at splash
+    returnToSplash();
 }
 
 function closePortfolio() {
@@ -84,13 +87,45 @@ function bringToFront(element) {
 }
 
 /* ========================
-   3. NAVIGATION (Sidebar)
+   VIEW NAVIGATION (Splash -> Content)
    ======================== */
+const splashView = document.getElementById('view-splash');
+const contentView = document.getElementById('view-content');
+
+// Switch from Splash to specific section
+function enterMainLayout(sectionId) {
+    splashView.style.display = "none";
+    contentView.style.display = "flex";
+    
+    // Trigger the section navigation
+    // Reset all nav items
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    
+    // Find the link that corresponds to the section and activate it
+    const sidebarLinks = document.querySelectorAll('.nav-links .nav-item');
+    sidebarLinks.forEach(link => {
+        if(link.getAttribute('onclick').includes(sectionId)) {
+            link.classList.add('active');
+        }
+    });
+
+    // Show content
+    document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+}
+
+// Sidebar Navigation logic
 function navigate(sectionId, linkElement) {
     document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById(sectionId).classList.add('active');
     linkElement.classList.add('active');
+}
+
+// Go back to Splash
+function returnToSplash() {
+    contentView.style.display = "none";
+    splashView.style.display = "flex";
 }
 
 /* ========================
