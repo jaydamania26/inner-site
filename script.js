@@ -671,3 +671,20 @@ function rrLoop() {
 
 // Initial Open
 openPortfolio();
+/* ========================
+   10. IFRAME FOCUS FIX
+   ======================== */
+// If this site is running inside an iframe, force focus on click
+// so the keyboard games work.
+document.addEventListener('click', function() {
+    window.focus();
+    // If the game window is open, focus the canvas specifically if needed
+    if(document.getElementById("game-window").style.display === "flex") {
+        document.getElementById("gameCanvas").focus();
+    }
+});
+
+// Optional: Auto-focus on load
+window.onload = function() {
+    window.focus();
+}
