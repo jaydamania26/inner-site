@@ -23,17 +23,30 @@ const taskTab = document.getElementById("taskbar-tab");
 // STATE TRACKER
 let isMaximized = false;
 
+// Global Window Functions (Wrappers defined at bottom for persistence)
 function openPortfolio() {
+    _openPortfolioInternal();
+    saveState(true);
+}
+
+function closePortfolio() {
+    _closePortfolioInternal();
+    saveState(false);
+}
+
+// Internal Logic
+function _openPortfolioInternal() {
     windowEl.style.display = "flex";
     taskTab.style.display = "flex";
     document.getElementById('start-menu').classList.remove('show');
     bringToFront(windowEl);
-    
-    // Ensure we start at splash
-    returnToSplash();
+    // Ensure we start at splash if it's a fresh open
+    if (document.getElementById('view-content').style.display === "none") {
+        returnToSplash();
+    }
 }
 
-function closePortfolio() {
+function _closePortfolioInternal() {
     windowEl.style.display = "none";
     taskTab.style.display = "none";
 }
@@ -82,12 +95,12 @@ function bringToFront(element) {
     document.getElementById("credits-window").style.zIndex = "10";
     document.getElementById("game-window").style.zIndex = "10";
     document.getElementById("shutdown-window").style.zIndex = "10";
-    document.getElementById("rr-window").style.zIndex = "10"; 
+    document.getElementById("rr-window").style.zIndex = "10";
     element.style.zIndex = "30";
 }
 
 /* ========================
-   VIEW NAVIGATION (Splash -> Content)
+   3. VIEW NAVIGATION (Splash -> Content)
    ======================== */
 const splashView = document.getElementById('view-splash');
 const contentView = document.getElementById('view-content');
@@ -96,15 +109,14 @@ const contentView = document.getElementById('view-content');
 function enterMainLayout(sectionId) {
     splashView.style.display = "none";
     contentView.style.display = "flex";
-    
-    // Trigger the section navigation
+
     // Reset all nav items
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    
+
     // Find the link that corresponds to the section and activate it
     const sidebarLinks = document.querySelectorAll('.nav-links .nav-item');
     sidebarLinks.forEach(link => {
-        if(link.getAttribute('onclick').includes(sectionId)) {
+        if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(sectionId)) {
             link.classList.add('active');
         }
     });
@@ -119,7 +131,7 @@ function navigate(sectionId, linkElement) {
     document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById(sectionId).classList.add('active');
-    linkElement.classList.add('active');
+    if (linkElement) linkElement.classList.add('active');
 }
 
 // Go back to Splash
@@ -141,7 +153,6 @@ function toggleStartMenu() {
     } else {
         menu.classList.add('show');
         btn.style.borderStyle = "inset";
-        // Ensure menu is on top
         menu.style.zIndex = "1001";
     }
 }
@@ -165,7 +176,7 @@ function makeDraggable(element, handle) {
     handle.addEventListener("mousedown", (e) => {
         // Prevent drag if maximizing or clicking buttons
         if (e.target.tagName === "BUTTON") return;
-        if (element.classList.contains("maximized")) return; // Don't drag if maximized
+        if (element.classList.contains("maximized")) return;
 
         isDragging = true;
         startX = e.clientX;
@@ -174,6 +185,7 @@ function makeDraggable(element, handle) {
 
         bringToFront(element);
 
+        // Reset transform if exists to avoid offset issues
         if (window.getComputedStyle(element).transform !== 'none') {
             element.style.transform = "none";
             element.style.left = rect.left + "px";
@@ -229,14 +241,14 @@ let particles = [];
 
 function openGame() {
     gameWindow.style.display = "flex";
-    gameTaskTab.style.display = "flex";
+    if (gameTaskTab) gameTaskTab.style.display = "flex";
     bringToFront(gameWindow);
     document.getElementById('start-menu').classList.remove('show');
 }
 
 function closeGame() {
     gameWindow.style.display = "none";
-    gameTaskTab.style.display = "none";
+    if (gameTaskTab) gameTaskTab.style.display = "none";
     gameRunning = false;
     cancelAnimationFrame(animationId);
 }
@@ -256,13 +268,45 @@ window.addEventListener("keyup", (e) => {
 
 canvas.addEventListener("mousemove", (e) => {
     const rect = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - rect.left;
-    mouse.y = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    mouse.x = (e.clientX - rect.left) * scaleX;
+    mouse.y = (e.clientY - rect.top) * scaleY;
 });
 
 canvas.addEventListener("mousedown", () => {
     if (gameRunning) shoot();
 });
+
+// Mobile Controls for Zombie Game
+function shootMobile() {
+    if (gameRunning) {
+        let targetX = mouse.x;
+        let targetY = mouse.y;
+
+        if (zombies.length > 0) {
+            let closest = zombies[0];
+            let minDist = 99999;
+            zombies.forEach(z => {
+                let d = Math.hypot(z.x - player.x, z.y - player.y);
+                if (d < minDist) { minDist = d; closest = z; }
+            });
+            targetX = closest.x;
+            targetY = closest.y;
+        } else {
+            targetY = player.y - 100;
+        }
+
+        const angle = Math.atan2(targetY - player.y, targetX - player.x);
+        bullets.push({
+            x: player.x,
+            y: player.y,
+            vx: Math.cos(angle) * 8,
+            vy: Math.sin(angle) * 8,
+            life: 100
+        });
+    }
+}
 
 function startGame() {
     score = 0;
@@ -284,15 +328,11 @@ function startGame() {
 
 function shoot() {
     const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
-    const velocity = {
-        x: Math.cos(angle) * 8,
-        y: Math.sin(angle) * 8
-    };
     bullets.push({
         x: player.x,
         y: player.y,
-        vx: velocity.x,
-        vy: velocity.y,
+        vx: Math.cos(angle) * 8,
+        vy: Math.sin(angle) * 8,
         life: 100
     });
 }
@@ -440,83 +480,27 @@ function loop() {
    ======================== */
 const contextMenu = document.getElementById("context-menu");
 
-// 1. Listen for Right Click
-document.addEventListener('contextmenu', (e) => {
-    e.preventDefault(); // Stop default browser menu
-    
-    // Get mouse position
-    const x = e.clientX;
-    const y = e.clientY;
+if (contextMenu) {
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.style.top = `${e.clientY}px`;
+        contextMenu.style.display = "flex";
+    });
 
-    // Position menu
-    contextMenu.style.left = `${x}px`;
-    contextMenu.style.top = `${y}px`;
-    contextMenu.style.display = "flex";
-});
+    document.addEventListener('click', (e) => {
+        if (contextMenu.style.display === "flex") {
+            contextMenu.style.display = "none";
+        }
+    });
+}
 
-// 2. Hide menu on Left Click
-document.addEventListener('click', (e) => {
-    // If we click anywhere, close the menu
-    if (contextMenu.style.display === "flex") {
-        contextMenu.style.display = "none";
-    }
-});
-
-// 3. The Refresh Action
 function triggerRefresh() {
     location.reload();
 }
 
 /* ========================
-   8. SHUTDOWN / RESTART LOGIC
-   ======================== */
-const shutdownWindow = document.getElementById("shutdown-window");
-const shutdownScreen = document.getElementById("shutdown-screen");
-
-function openShutdown() {
-    // Close start menu first
-    document.getElementById('start-menu').classList.remove('show');
-    document.querySelector('.start-btn').style.borderStyle = "outset";
-    
-    // Open Dialog
-    shutdownWindow.style.display = "flex";
-    bringToFront(shutdownWindow);
-    
-    // Position exactly center (JS helper just in case CSS varies)
-    const rect = shutdownWindow.getBoundingClientRect();
-    shutdownWindow.style.top = (window.innerHeight / 2 - rect.height / 2) + "px";
-    shutdownWindow.style.left = (window.innerWidth / 2 - rect.width / 2) + "px";
-}
-
-function closeShutdown() {
-    shutdownWindow.style.display = "none";
-}
-
-function performShutdownAction() {
-    const radios = document.getElementsByName('shutdown-action');
-    let selectedValue;
-    
-    for (const radio of radios) {
-        if (radio.checked) {
-            selectedValue = radio.value;
-            break;
-        }
-    }
-
-    if (selectedValue === 'restart') {
-        location.reload();
-    } else if (selectedValue === 'shutdown') {
-        // Web pages can't actually shut down the computer, so we fake it
-        shutdownWindow.style.display = "none";
-        shutdownScreen.style.display = "flex";
-        
-        // Optional: Hide cursor to look more authentic
-        document.body.style.cursor = "none";
-    }
-}
-
-/* ========================
-   9. ROAD RASH (RACING) GAME LOGIC
+   8. ROAD RASH (RACING) GAME LOGIC
    ======================== */
 const rrWindow = document.getElementById("rr-window");
 const rrTaskTab = document.getElementById("rr-taskbar-tab");
@@ -529,36 +513,32 @@ let rrScore = 0;
 let rrSpeed = 0;
 let rrFrame = 0;
 
-// Inputs
 const rrKeys = { left: false, right: false };
-
-// Game Objects
 let rrPlayer = { x: 320, y: 380, width: 40, height: 60, speed: 5 };
-let rrObstacles = []; // Other cars
+let rrObstacles = [];
 let roadLines = [];
 
 function openRR() {
     rrWindow.style.display = "flex";
-    rrTaskTab.style.display = "flex";
+    if (rrTaskTab) rrTaskTab.style.display = "flex";
     bringToFront(rrWindow);
     document.getElementById('start-menu').classList.remove('show');
 }
 
 function closeRR() {
     rrWindow.style.display = "none";
-    rrTaskTab.style.display = "none";
+    if (rrTaskTab) rrTaskTab.style.display = "none";
     rrRunning = false;
     cancelAnimationFrame(rrAnimId);
 }
 
-// Controls
 window.addEventListener("keydown", (e) => {
-    if(e.key === "ArrowLeft" || e.key === "a") rrKeys.left = true;
-    if(e.key === "ArrowRight" || e.key === "d") rrKeys.right = true;
+    if (e.key === "ArrowLeft" || e.key === "a") rrKeys.left = true;
+    if (e.key === "ArrowRight" || e.key === "d") rrKeys.right = true;
 });
 window.addEventListener("keyup", (e) => {
-    if(e.key === "ArrowLeft" || e.key === "a") rrKeys.left = false;
-    if(e.key === "ArrowRight" || e.key === "d") rrKeys.right = false;
+    if (e.key === "ArrowLeft" || e.key === "a") rrKeys.left = false;
+    if (e.key === "ArrowRight" || e.key === "d") rrKeys.right = false;
 });
 
 function startRR() {
@@ -567,17 +547,13 @@ function startRR() {
     rrPlayer.x = rrCanvas.width / 2 - 20;
     rrObstacles = [];
     roadLines = [];
-    
-    // Init Road Lines
-    for(let i=0; i<10; i++) {
-        roadLines.push({y: i * 50});
+    for (let i = 0; i < 10; i++) {
+        roadLines.push({ y: i * 50 });
     }
-
     rrRunning = true;
     document.getElementById("rr-ui").style.display = "none";
     document.getElementById("rr-over-ui").style.display = "none";
     document.getElementById("rr-hud").style.display = "flex";
-    
     rrLoop();
 }
 
@@ -592,99 +568,219 @@ function rrGameOver() {
 function rrLoop() {
     if (!rrRunning) return;
     rrAnimId = requestAnimationFrame(rrLoop);
-    
-    // Clear
-    rrCtx.fillStyle = "#2c3e50"; // Grass color
+
+    // Clear & Grass
+    rrCtx.fillStyle = "#2c3e50";
     rrCtx.fillRect(0, 0, rrCanvas.width, rrCanvas.height);
-    
-    // Draw Road
+
+    // Road
     const roadX = 100;
     const roadW = 440;
-    rrCtx.fillStyle = "#555"; // Road color
+    rrCtx.fillStyle = "#555";
     rrCtx.fillRect(roadX, 0, roadW, rrCanvas.height);
-    
+
     // Borders
     rrCtx.fillStyle = "#fff";
     rrCtx.fillRect(roadX - 10, 0, 10, rrCanvas.height);
     rrCtx.fillRect(roadX + roadW, 0, 10, rrCanvas.height);
 
-    // Update Speed & Score
-    rrSpeed += 0.005; // Acceleration
+    rrSpeed += 0.005;
     rrScore += rrSpeed * 0.01;
     rrFrame++;
 
-    // Move Road Lines
+    // Road Lines
     rrCtx.fillStyle = "#fff";
     roadLines.forEach(line => {
         line.y += rrSpeed * 2;
-        if(line.y > rrCanvas.height) line.y = -50;
-        rrCtx.fillRect(rrCanvas.width/2 - 5, line.y, 10, 30);
+        if (line.y > rrCanvas.height) line.y = -50;
+        rrCtx.fillRect(rrCanvas.width / 2 - 5, line.y, 10, 30);
     });
 
-    // Move Player
+    // Player
     if (rrKeys.left && rrPlayer.x > roadX) rrPlayer.x -= 6;
     if (rrKeys.right && rrPlayer.x < roadX + roadW - rrPlayer.width) rrPlayer.x += 6;
-
-    // Draw Player (Bike)
-    rrCtx.fillStyle = "#e74c3c"; // Red bike
+    rrCtx.fillStyle = "#e74c3c";
     rrCtx.fillRect(rrPlayer.x, rrPlayer.y, rrPlayer.width, rrPlayer.height);
-    // Bike detail
-    rrCtx.fillStyle = "#000"; 
-    rrCtx.fillRect(rrPlayer.x + 10, rrPlayer.y - 10, 20, 10); // Handlebars
+    rrCtx.fillStyle = "#000"; // Handlebars
+    rrCtx.fillRect(rrPlayer.x + 10, rrPlayer.y - 10, 20, 10);
 
-    // Spawn Obstacles (Cars)
+    // Obstacles
     if (rrFrame % Math.floor(600 / rrSpeed) === 0) {
         let obsX = roadX + Math.random() * (roadW - 50);
         rrObstacles.push({ x: obsX, y: -100, w: 45, h: 70, color: "#3498db" });
     }
 
-    // Handle Obstacles
     for (let i = 0; i < rrObstacles.length; i++) {
         let obs = rrObstacles[i];
-        obs.y += rrSpeed * 1.5; // Cars move slower or relative to player
-        
-        // Draw Car
+        obs.y += rrSpeed * 1.5;
         rrCtx.fillStyle = obs.color;
         rrCtx.fillRect(obs.x, obs.y, obs.w, obs.h);
-        
-        // Collision Detection
-        if (
-            rrPlayer.x < obs.x + obs.w &&
-            rrPlayer.x + rrPlayer.width > obs.x &&
-            rrPlayer.y < obs.y + obs.h &&
-            rrPlayer.height + rrPlayer.y > obs.y
-        ) {
+
+        // Collision
+        if (rrPlayer.x < obs.x + obs.w && rrPlayer.x + rrPlayer.width > obs.x && rrPlayer.y < obs.y + obs.h && rrPlayer.height + rrPlayer.y > obs.y) {
             rrGameOver();
         }
 
-        // Remove if off screen
         if (obs.y > rrCanvas.height) {
             rrObstacles.splice(i, 1);
             i--;
         }
     }
 
-    // Update HUD
     document.getElementById("rr-speed").innerText = Math.floor(rrSpeed * 10);
     document.getElementById("rr-score").innerText = Math.floor(rrScore);
 }
 
-// Initial Open
-openPortfolio();
 /* ========================
-   10. IFRAME FOCUS FIX
+   9. SHUTDOWN / RESTART LOGIC
    ======================== */
-// If this site is running inside an iframe, force focus on click
-// so the keyboard games work.
-document.addEventListener('click', function() {
-    window.focus();
-    // If the game window is open, focus the canvas specifically if needed
-    if(document.getElementById("game-window").style.display === "flex") {
-        document.getElementById("gameCanvas").focus();
+const shutdownWindow = document.getElementById("shutdown-window");
+const shutdownScreen = document.getElementById("shutdown-screen");
+
+function openShutdown() {
+    document.getElementById('start-menu').classList.remove('show');
+    document.querySelector('.start-btn').style.borderStyle = "outset";
+    shutdownWindow.style.display = "flex";
+    bringToFront(shutdownWindow);
+}
+function closeShutdown() {
+    shutdownWindow.style.display = "none";
+}
+function performShutdownAction() {
+    const radios = document.getElementsByName('shutdown-action');
+    let selectedValue;
+    for (const radio of radios) { if (radio.checked) { selectedValue = radio.value; break; } }
+    if (selectedValue === 'restart') {
+        localStorage.setItem('portfolioOpen', 'true'); // Reboot to open
+        location.reload();
+    }
+    else if (selectedValue === 'shutdown') {
+        shutdownWindow.style.display = "none";
+        shutdownScreen.style.display = "flex";
+        document.body.style.cursor = "none";
+        localStorage.setItem('portfolioOpen', 'false');
+    }
+}
+
+/* ========================
+   10. SOUND SYSTEM (EXECUTIVE PROFESSIONAL AUDIO)
+   ======================== */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// 1. Generate High-Density Noise Buffer
+// We use noise because professional hardware makes a "texture," not a "beep."
+const bufferSize = audioCtx.sampleRate * 1;
+const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+const data = noiseBuffer.getChannelData(0);
+for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+}
+
+/**
+ * Professional Acoustic Engine
+ * Optimized for zero-latency sync and premium textures.
+ */
+function playProfessionalSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const t = audioCtx.currentTime;
+    const source = audioCtx.createBufferSource();
+    const filter = audioCtx.createBiquadFilter();
+    const gain = audioCtx.createGain();
+
+    source.buffer = noiseBuffer;
+
+    if (type === 'mouse') {
+        // ========================
+        // MOUSE: THE "MX MASTER" PRECISION TICK
+        // ========================
+        // High-pass filter at 5000Hz removes all the "hollow" plastic sound
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(5000, t);
+
+        // Short, crisp volume envelope
+        gain.gain.setValueAtTime(0.35, t);
+        // 0.005s decay ensures a modern "snick" rather than a click
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.005);
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        source.start(t);
+        source.stop(t + 0.01);
+
+    } else {
+        // ========================
+        // KEYBOARD: THE "EXECUTIVE" DEEP THOCK
+        // ========================
+        // Bandpass at 600Hz creates a solid, dampened impact sound
+        filter.type = 'bandpass';
+
+        // Frequency randomization for organic variety (removes robotic feel)
+        const professionalFreq = 550 + Math.random() * 150;
+        filter.frequency.setValueAtTime(professionalFreq, t);
+
+        // Q=2.0 creates a "dense" sound, like thick PBT keycaps hitting an aluminum frame
+        filter.Q.value = 2.0;
+
+        // Controlled volume for non-fatiguing long-term use
+        gain.gain.setValueAtTime(0.6, t);
+        // Clean, fast decay (0.035s) for a high-end lubricated switch feel
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        source.start(t);
+        source.stop(t + 0.04);
+    }
+}
+
+// ========================
+// PROFESSIONAL EVENT SYNC
+// ========================
+
+// Mouse: Fires on 'mousedown' for 1:1 tactile response (Synced)
+document.addEventListener('mousedown', (e) => {
+    // Only trigger for primary button (left) or secondary (right)
+    if (e.button === 0 || e.button === 2) {
+        playProfessionalSound('mouse');
     }
 });
 
-// Optional: Auto-focus on load
-window.onload = function() {
-    window.focus();
+// Keyboard: Fires instantly on 'keydown'
+document.addEventListener('keydown', (e) => {
+    // Prevent "machine gun" sound effect if key is held down
+    if (!e.repeat) {
+        playProfessionalSound('keyboard');
+    }
+});
+
+// Mobile: Professional tap sound
+document.addEventListener('touchstart', () => {
+    playProfessionalSound('mouse');
+}, { passive: true });
+
+/* ========================
+   11. INITIALIZATION & PERSISTENCE
+   ======================== */
+// Helper to save state
+function saveState(isOpen) {
+    localStorage.setItem('portfolioOpen', isOpen ? 'true' : 'false');
 }
+
+// Check state on load
+window.onload = function () {
+    window.focus(); // Ensure keys work immediately
+
+    // Check local storage
+    const shouldOpen = localStorage.getItem('portfolioOpen') !== 'false';
+
+    if (shouldOpen) {
+        _openPortfolioInternal();
+    } else {
+        _closePortfolioInternal();
+    }
+};
