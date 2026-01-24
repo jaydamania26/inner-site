@@ -27,16 +27,10 @@
             <span>My Showcase</span>
         </div>
 
-        <!-- ZOMBIE GAME ICON -->
-        <div class="icon" ondblclick="openGame()">
-            <img src="assets/doomIcon.png" alt="Game">
-            <span>ZOMBIE.EXE</span>
-        </div>
-
-        <!-- ROAD RASH GAME ICON -->
-        <div class="icon" ondblclick="openRR()">
-            <img src="assets/doomIcon.png" style="filter: hue-rotate(240deg);" alt="Road Rash">
-            <span>ROADRASH.EXE</span>
+        <!-- SNAKE GAME ICON -->
+        <div class="icon" ondblclick="openSnake()">
+            <img src="assets/doomIcon.png" style="filter: hue-rotate(120deg);" alt="Snake Game">
+            <span>SNAKE.EXE</span>
         </div>
 
         <div class="icon" onclick="openCredits()">
@@ -54,8 +48,8 @@
                 Jay Damania - Showcase 2025
             </div>
             <div class="title-bar-controls">
-                <button aria-label="Minimize" onclick="minimizeWindow()"></button>
-                <button aria-label="Maximize" onclick="toggleMaximize()"></button>
+                <button aria-label="Minimize" onclick="toggleMinimize('portfolio-window', 'taskbar-tab')"></button>
+                <button aria-label="Maximize" onclick="toggleMaximize('portfolio-window')"></button>
                 <button aria-label="Close" onclick="closePortfolio()"></button>
             </div>
         </div>
@@ -447,72 +441,55 @@
         </div>
     </div>
 
-    <!-- 3. ZOMBIE GAME WINDOW -->
-    <div class="window" id="game-window" style="display: none; width: 660px; height: 550px;">
-        <div class="title-bar" id="game-handle">
-            <div class="title-bar-text">ZOMBIE.EXE - Shareware v1.0</div>
+    <!-- SNAKE GAME WINDOW -->
+    <div class="window" id="snake-window"
+        style="display: none; width: 92vw; height: 85vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="title-bar" id="snake-handle">
+            <div class="title-bar-text">SNAKE.EXE - Retro Arcade v1.0</div>
             <div class="title-bar-controls">
-                <button aria-label="Close" onclick="closeGame()"></button>
+                <button aria-label="Minimize" onclick="toggleMinimize('snake-window', 'snake-taskbar-tab')"></button>
+                <button aria-label="Maximize" onclick="toggleMaximize('snake-window')"></button>
+                <button aria-label="Close" onclick="closeSnake()"></button>
             </div>
         </div>
-        <div class="window-body game-body">
-            <!-- CRT Monitor Scanline Effect -->
+        <div class="window-body snake-body">
+            <!-- Close button for borderless -->
+            <button class="close-game-btn" onclick="closeSnake()">X CLOSE GAME</button>
+
             <div class="crt-overlay"></div>
 
-            <canvas id="gameCanvas" width="640" height="480"></canvas>
+            <div class="game-container">
+                <canvas id="snakeCanvas"></canvas>
 
-            <!-- Game UI Overlay (Start Screen) -->
-            <div id="game-ui">
-                <h1 class="game-title">UNDEAD_OVERFLOW</h1>
-                <p class="game-text">WASD to Move | Mouse to Aim | Click to Shoot</p>
-                <button class="retro-btn" onclick="startGame()">INSERT COIN (START)</button>
+                <!-- Mobile D-Pad -->
+                <div class="mobile-controls">
+                    <button class="control-btn up" onclick="changeSnakeDir('up')">▲</button>
+                    <div class="mid-controls">
+                        <button class="control-btn left" onclick="changeSnakeDir('left')">◀</button>
+                        <button class="control-btn right" onclick="changeSnakeDir('right')">▶</button>
+                    </div>
+                    <button class="control-btn down" onclick="changeSnakeDir('down')">▼</button>
+                </div>
             </div>
 
-            <!-- Game Over Screen -->
-            <div id="game-over-ui" style="display:none;">
-                <h1 class="game-title" style="color:red;">SYSTEM FATAL ERROR</h1>
-                <p class="game-text" id="final-score">SCORE: 0</p>
-                <button class="retro-btn" onclick="startGame()">REBOOT SYSTEM</button>
+            <!-- Snake Start Screen -->
+            <div id="snake-ui">
+                <h1 class="game-title" style="color: #00ff00;">RETRO_SNAKE</h1>
+                <p class="game-text">Arrows / WASD to Move | Touch D-Pad on Mobile</p>
+                <button class="retro-btn" onclick="startSnake()">INSERT COIN (START)</button>
             </div>
 
-            <!-- In-Game HUD -->
-            <div class="game-hud" id="game-hud" style="display:none;">
-                <span>HP: <span id="hud-hp">100</span>%</span>
-                <span>SCORE: <span id="hud-score">00000</span></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. ROAD RASH (NEW) WINDOW -->
-    <div class="window" id="rr-window" style="display: none; width: 660px; height: 550px;">
-        <div class="title-bar" id="rr-handle">
-            <div class="title-bar-text">ROADRASH.EXE - Illegal Street Race</div>
-            <div class="title-bar-controls">
-                <button aria-label="Close" onclick="closeRR()"></button>
-            </div>
-        </div>
-        <div class="window-body rr-body">
-            <div class="crt-overlay"></div>
-            <canvas id="rrCanvas" width="640" height="480"></canvas>
-
-            <!-- RR Start Screen -->
-            <div id="rr-ui">
-                <h1 class="game-title" style="color: yellow; text-shadow: 4px 4px 0 #8B0000;">STREET_RASH</h1>
-                <p class="game-text">A / D or Arrows to Steer | Avoid Traffic</p>
-                <button class="retro-btn" onclick="startRR()">IGNITION (START)</button>
+            <!-- Snake Game Over -->
+            <div id="snake-over-ui" style="display:none;">
+                <h1 class="game-title" style="color: red;">CRASH_DETECTION</h1>
+                <p class="game-text" id="snake-final-score">SCORE: 0</p>
+                <button class="retro-btn" onclick="startSnake()">REBOOT SYSTEM</button>
             </div>
 
-            <!-- RR Game Over -->
-            <div id="rr-over-ui" style="display:none;">
-                <h1 class="game-title" style="color: red;">BUSTED / CRASHED</h1>
-                <p class="game-text" id="rr-final-score">DISTANCE: 0 MILES</p>
-                <button class="retro-btn" onclick="startRR()">REMATCH</button>
-            </div>
-
-            <!-- RR HUD -->
-            <div class="game-hud" id="rr-hud" style="display:none; color: yellow;">
-                <span>SPEED: <span id="rr-speed">0</span> MPH</span>
-                <span>DIST: <span id="rr-score">0</span></span>
+            <!-- Snake HUD -->
+            <div class="game-hud" id="snake-hud" style="display:none;">
+                <span>SCORE: <span id="snake-score">0</span></span>
+                <span>LEVEL: <span id="snake-level">1</span></span>
             </div>
         </div>
     </div>
@@ -563,16 +540,11 @@
             <span>My Showcase</span>
         </div>
 
-        <!-- Zombie Tab -->
-        <div class="task-tab" id="game-taskbar-tab" style="display: none; background: #000; color: #00ff00;">
-            <img src="assets/doomIcon.png">
-            <span>ZOMBIE.EXE</span>
-        </div>
-
-        <!-- ROAD RASH Tab -->
-        <div class="task-tab" id="rr-taskbar-tab" style="display: none; background: #222; color: #ffff00;">
-            <img src="assets/doomIcon.png" style="filter: hue-rotate(240deg);">
-            <span>ROADRASH.EXE</span>
+        <!-- Snake Tab -->
+        <div class="task-tab" id="snake-taskbar-tab" onclick="toggleMinimize('snake-window', 'snake-taskbar-tab')"
+            style="display: none; border-color: #00ff00;">
+            <img src="assets/doomIcon.png" style="filter: hue-rotate(120deg);">
+            <span>SNAKE.EXE</span>
         </div>
 
         <div class="spacer"></div>
@@ -590,18 +562,17 @@
                 <img src="assets/myComputer.png">
                 <span>Programs</span>
             </div>
-            <div class="menu-item" onclick="openGame()">
-                <img src="assets/doomIcon.png">
-                <span>Games > Zombie.exe</span>
-            </div>
-            <!-- ROAD RASH MENU ITEM -->
-            <div class="menu-item" onclick="openRR()">
-                <img src="assets/doomIcon.png" style="filter: hue-rotate(240deg);">
-                <span>Games > RoadRash.exe</span>
+            <div class="menu-item" onclick="openSnake()">
+                <img src="assets/doomIcon.png" style="filter: hue-rotate(120deg);">
+                <span>Snake.exe</span>
             </div>
             <div class="menu-item" onclick="openCredits()">
                 <img src="assets/credits.png">
                 <span>Credits</span>
+            </div>
+            <div class="menu-item" onclick="openSnake()">
+                <img src="assets/doomIcon.png" style="filter: hue-rotate(120deg);">
+                <span>Snake.exe</span>
             </div>
             <div class="hor-divider"></div>
             <!-- Opens Shutdown Dialog -->

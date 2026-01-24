@@ -56,23 +56,28 @@ function minimizeWindow() {
     taskTab.style.background = "#c0c0c0";
 }
 
-// MAXIMIZE FUNCTION
-function toggleMaximize() {
-    if (!isMaximized) {
-        windowEl.classList.add("maximized");
-        isMaximized = true;
+// Maximize Logic
+function toggleMaximize(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el.classList.contains("maximized")) {
+        el.classList.add("maximized");
     } else {
-        windowEl.classList.remove("maximized");
-        isMaximized = false;
+        el.classList.remove("maximized");
+    }
+    // If it's the snake window, resize the canvas
+    if (elementId === 'snake-window' && typeof resizeSnakeCanvas === 'function') {
+        resizeSnakeCanvas();
     }
 }
 
-function toggleMinimize() {
-    if (windowEl.style.display === "none") {
-        windowEl.style.display = "flex";
-        bringToFront(windowEl);
+function toggleMinimize(elementId, tabId) {
+    const el = document.getElementById(elementId);
+    if (el.style.display === "none") {
+        el.style.display = "flex";
+        bringToFront(el);
     } else {
-        minimizeWindow();
+        el.style.display = "none";
+        if (tabId) document.getElementById(tabId).style.background = "#c0c0c0";
     }
 }
 
@@ -91,11 +96,11 @@ function closeCredits() {
 
 // Helper: Bring clicked window to front
 function bringToFront(element) {
-    document.getElementById("portfolio-window").style.zIndex = "10";
-    document.getElementById("credits-window").style.zIndex = "10";
-    document.getElementById("game-window").style.zIndex = "10";
-    document.getElementById("shutdown-window").style.zIndex = "10";
-    document.getElementById("rr-window").style.zIndex = "10";
+    const windows = ["portfolio-window", "credits-window", "snake-window", "shutdown-window"];
+    windows.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.zIndex = "10";
+    });
     element.style.zIndex = "30";
 }
 
@@ -212,428 +217,225 @@ function makeDraggable(element, handle) {
 
 makeDraggable(document.getElementById("portfolio-window"), document.getElementById("drag-handle"));
 makeDraggable(document.getElementById("credits-window"), document.getElementById("credits-handle"));
-makeDraggable(document.getElementById("game-window"), document.getElementById("game-handle"));
+makeDraggable(document.getElementById("snake-window"), document.getElementById("snake-handle"));
 makeDraggable(document.getElementById("shutdown-window"), document.getElementById("shutdown-handle"));
-makeDraggable(document.getElementById("rr-window"), document.getElementById("rr-handle"));
 
 
 /* ========================
-   6. ZOMBIE.EXE GAME LOGIC
+   6. SNAKE.EXE GAME LOGIC
    ======================== */
-const gameWindow = document.getElementById("game-window");
-const gameTaskTab = document.getElementById("game-taskbar-tab");
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const snakeWindow = document.getElementById("snake-window");
+const snakeTaskTab = document.getElementById("snake-taskbar-tab");
+const snakeCanvas = document.getElementById("snakeCanvas");
+const sCtx = snakeCanvas.getContext("2d");
 
-let gameRunning = false;
-let animationId;
-let score = 0;
-let hp = 100;
-let frameCount = 0;
+// Game Constants
+const GRID_SIZE = 20;
+let snakeRunning = false;
+let snakeLoop;
+let snake = [];
+let food = { x: 0, y: 0 };
+let direction = 'right';
+let nextDirection = 'right';
+let snakeScore = 0;
+let snakeLevel = 1;
 
-const keys = { w: false, a: false, s: false, d: false };
-const mouse = { x: 0, y: 0 };
-
-let player = { x: 320, y: 240, size: 20, speed: 4 };
-let bullets = [];
-let zombies = [];
-let particles = [];
-
-function openGame() {
-    gameWindow.style.display = "flex";
-    if (gameTaskTab) gameTaskTab.style.display = "flex";
-    bringToFront(gameWindow);
+function openSnake() {
+    snakeWindow.style.display = "flex";
+    if (snakeTaskTab) snakeTaskTab.style.display = "flex";
+    bringToFront(snakeWindow);
     document.getElementById('start-menu').classList.remove('show');
+
+    // Auto-resize canvas to match container but stay grid-aligned
+    resizeSnakeCanvas();
 }
 
-function closeGame() {
-    gameWindow.style.display = "none";
-    if (gameTaskTab) gameTaskTab.style.display = "none";
-    gameRunning = false;
-    cancelAnimationFrame(animationId);
+function resizeSnakeCanvas() {
+    const container = snakeWindow.querySelector('.snake-body');
+    if (!container) return;
+    const width = Math.floor((container.clientWidth * 0.9) / GRID_SIZE) * GRID_SIZE;
+    const height = Math.floor((container.clientHeight * 0.7) / GRID_SIZE) * GRID_SIZE;
+    snakeCanvas.width = width || 400;
+    snakeCanvas.height = height || 400;
+}
+
+window.addEventListener('resize', () => {
+    if (snakeWindow.style.display === "flex") resizeSnakeCanvas();
+});
+
+function closeSnake() {
+    snakeWindow.style.display = "none";
+    if (snakeTaskTab) snakeTaskTab.style.display = "none";
+    stopSnake();
+}
+
+function startSnake() {
+    snake = [
+        { x: GRID_SIZE * 5, y: GRID_SIZE * 5 },
+        { x: GRID_SIZE * 4, y: GRID_SIZE * 5 },
+        { x: GRID_SIZE * 3, y: GRID_SIZE * 5 }
+    ];
+    direction = 'right';
+    nextDirection = 'right';
+    snakeScore = 0;
+    snakeLevel = 1;
+
+    // Ensure canvas is correctly sized before spawning food
+    resizeSnakeCanvas();
+    spawnFood();
+
+    document.getElementById("snake-ui").style.display = "none";
+    document.getElementById("snake-over-ui").style.display = "none";
+    document.getElementById("snake-hud").style.display = "flex";
+
+    updateSnakeHUD();
+
+    if (snakeLoop) clearInterval(snakeLoop);
+    snakeRunning = true;
+    snakeLoop = setInterval(gameStep, 150);
+}
+
+function stopSnake() {
+    snakeRunning = false;
+    clearInterval(snakeLoop);
+}
+
+function spawnFood() {
+    const cols = snakeCanvas.width / GRID_SIZE;
+    const rows = snakeCanvas.height / GRID_SIZE;
+    food.x = Math.floor(Math.random() * cols) * GRID_SIZE;
+    food.y = Math.floor(Math.random() * rows) * GRID_SIZE;
+
+    // Don't spawn on snake body
+    for (let part of snake) {
+        if (part.x === food.x && part.y === food.y) return spawnFood();
+    }
+}
+
+function changeSnakeDir(dir) {
+    if (dir === 'up' && direction !== 'down') nextDirection = 'up';
+    if (dir === 'down' && direction !== 'up') nextDirection = 'down';
+    if (dir === 'left' && direction !== 'right') nextDirection = 'left';
+    if (dir === 'right' && direction !== 'left') nextDirection = 'right';
 }
 
 window.addEventListener("keydown", (e) => {
-    if (e.key === "w" || e.key === "ArrowUp") keys.w = true;
-    if (e.key === "a" || e.key === "ArrowLeft") keys.a = true;
-    if (e.key === "s" || e.key === "ArrowDown") keys.s = true;
-    if (e.key === "d" || e.key === "ArrowRight") keys.d = true;
-});
-window.addEventListener("keyup", (e) => {
-    if (e.key === "w" || e.key === "ArrowUp") keys.w = false;
-    if (e.key === "a" || e.key === "ArrowLeft") keys.a = false;
-    if (e.key === "s" || e.key === "ArrowDown") keys.s = false;
-    if (e.key === "d" || e.key === "ArrowRight") keys.d = false;
+    if (['ArrowUp', 'w', 'W'].includes(e.key)) changeSnakeDir('up');
+    if (['ArrowDown', 's', 'S'].includes(e.key)) changeSnakeDir('down');
+    if (['ArrowLeft', 'a', 'A'].includes(e.key)) changeSnakeDir('left');
+    if (['ArrowRight', 'd', 'D'].includes(e.key)) changeSnakeDir('right');
+    if (e.key === "Escape") closeSnake();
 });
 
-canvas.addEventListener("mousemove", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    mouse.x = (e.clientX - rect.left) * scaleX;
-    mouse.y = (e.clientY - rect.top) * scaleY;
-});
+function gameStep() {
+    if (!snakeRunning) return;
 
-canvas.addEventListener("mousedown", () => {
-    if (gameRunning) shoot();
-});
+    direction = nextDirection;
+    const head = { ...snake[0] };
 
-// Mobile Controls for Zombie Game
-function shootMobile() {
-    if (gameRunning) {
-        let targetX = mouse.x;
-        let targetY = mouse.y;
+    if (direction === 'up') head.y -= GRID_SIZE;
+    if (direction === 'down') head.y += GRID_SIZE;
+    if (direction === 'left') head.x -= GRID_SIZE;
+    if (direction === 'right') head.x += GRID_SIZE;
 
-        if (zombies.length > 0) {
-            let closest = zombies[0];
-            let minDist = 99999;
-            zombies.forEach(z => {
-                let d = Math.hypot(z.x - player.x, z.y - player.y);
-                if (d < minDist) { minDist = d; closest = z; }
-            });
-            targetX = closest.x;
-            targetY = closest.y;
-        } else {
-            targetY = player.y - 100;
-        }
-
-        const angle = Math.atan2(targetY - player.y, targetX - player.x);
-        bullets.push({
-            x: player.x,
-            y: player.y,
-            vx: Math.cos(angle) * 8,
-            vy: Math.sin(angle) * 8,
-            life: 100
-        });
+    // Wall Collision
+    if (head.x < 0 || head.x >= snakeCanvas.width || head.y < 0 || head.y >= snakeCanvas.height) {
+        return snakeGameOver();
     }
-}
 
-function startGame() {
-    score = 0;
-    hp = 100;
-    player.x = canvas.width / 2;
-    player.y = canvas.height / 2;
-    bullets = [];
-    zombies = [];
-    particles = [];
-    gameRunning = true;
+    // Body Collision
+    for (let part of snake) {
+        if (head.x === part.x && head.y === part.y) return snakeGameOver();
+    }
 
-    document.getElementById("game-ui").style.display = "none";
-    document.getElementById("game-over-ui").style.display = "none";
-    document.getElementById("game-hud").style.display = "flex";
+    snake.unshift(head);
 
-    updateHUD();
-    loop();
-}
-
-function shoot() {
-    const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
-    bullets.push({
-        x: player.x,
-        y: player.y,
-        vx: Math.cos(angle) * 8,
-        vy: Math.sin(angle) * 8,
-        life: 100
-    });
-}
-
-function spawnZombie() {
-    let x, y;
-    if (Math.random() < 0.5) {
-        x = Math.random() < 0.5 ? -30 : canvas.width + 30;
-        y = Math.random() * canvas.height;
+    // Food Collision
+    if (head.x === food.x && head.y === food.y) {
+        snakeScore += 10;
+        if (snakeScore % 50 === 0) {
+            snakeLevel++;
+            clearInterval(snakeLoop);
+            snakeLoop = setInterval(gameStep, Math.max(50, 150 - (snakeLevel * 10)));
+        }
+        updateSnakeHUD();
+        spawnFood();
+        playProfessionalSound('mouse'); // Re-use click sound for food
     } else {
-        x = Math.random() * canvas.width;
-        y = Math.random() < 0.5 ? -30 : canvas.height + 30;
+        snake.pop();
     }
 
-    zombies.push({
-        x: x,
-        y: y,
-        size: 24,
-        speed: 1 + Math.random() * 1.5,
-        hp: 3
+    drawSnake();
+}
+
+function drawSnake() {
+    sCtx.fillStyle = "#000";
+    sCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+
+    // Food
+    sCtx.fillStyle = "#ff0000";
+    sCtx.fillRect(food.x + 2, food.y + 2, GRID_SIZE - 4, GRID_SIZE - 4);
+
+    // Snake
+    snake.forEach((part, index) => {
+        sCtx.fillStyle = index === 0 ? "#00ff00" : "#00aa00";
+        sCtx.fillRect(part.x + 1, part.y + 1, GRID_SIZE - 2, GRID_SIZE - 2);
     });
 }
 
-function createParticles(x, y, color) {
-    for (let i = 0; i < 8; i++) {
-        particles.push({
-            x: x, y: y,
-            vx: (Math.random() - 0.5) * 6,
-            vy: (Math.random() - 0.5) * 6,
-            life: 20,
-            color: color
-        });
-    }
+function updateSnakeHUD() {
+    document.getElementById("snake-score").innerText = snakeScore;
+    document.getElementById("snake-level").innerText = snakeLevel;
 }
 
-function updateHUD() {
-    document.getElementById("hud-score").innerText = score.toString().padStart(5, '0');
-    document.getElementById("hud-hp").innerText = hp;
-    if (hp < 30) document.getElementById("hud-hp").style.color = "red";
-    else document.getElementById("hud-hp").style.color = "#00ff00";
-}
-
-function gameOver() {
-    gameRunning = false;
-    cancelAnimationFrame(animationId);
-    document.getElementById("game-over-ui").style.display = "flex";
-    document.getElementById("final-score").innerText = "FINAL SCORE: " + score;
-    document.getElementById("game-hud").style.display = "none";
-}
-
-function loop() {
-    if (!gameRunning) return;
-    animationId = requestAnimationFrame(loop);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    frameCount++;
-
-    if (keys.w && player.y > 0) player.y -= player.speed;
-    if (keys.s && player.y < canvas.height) player.y += player.speed;
-    if (keys.a && player.x > 0) player.x -= player.speed;
-    if (keys.d && player.x < canvas.width) player.x += player.speed;
-
-    ctx.fillStyle = "#00ff00";
-    ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
-
-    ctx.beginPath();
-    ctx.moveTo(player.x, player.y);
-    ctx.lineTo(mouse.x, mouse.y);
-    ctx.strokeStyle = "rgba(0, 255, 0, 0.2)";
-    ctx.stroke();
-
-    ctx.fillStyle = "#ffff00";
-    for (let i = bullets.length - 1; i >= 0; i--) {
-        let b = bullets[i];
-        b.x += b.vx;
-        b.y += b.vy;
-        b.life--;
-        ctx.fillRect(b.x - 2, b.y - 2, 4, 4);
-
-        if (b.life <= 0 || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
-            bullets.splice(i, 1);
-        }
-    }
-
-    let spawnRate = Math.max(20, 100 - Math.floor(score / 100));
-    if (frameCount % spawnRate === 0) spawnZombie();
-
-    for (let i = zombies.length - 1; i >= 0; i--) {
-        let z = zombies[i];
-        let angle = Math.atan2(player.y - z.y, player.x - z.x);
-        z.x += Math.cos(angle) * z.speed;
-        z.y += Math.sin(angle) * z.speed;
-
-        ctx.fillStyle = "#880000";
-        ctx.fillRect(z.x - z.size / 2, z.y - z.size / 2, z.size, z.size);
-        ctx.fillStyle = "#ffff00";
-        ctx.fillRect(z.x - 5, z.y - 5, 2, 2);
-        ctx.fillRect(z.x + 3, z.y - 5, 2, 2);
-
-        let dx = player.x - z.x;
-        let dy = player.y - z.y;
-        let dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < (player.size / 2 + z.size / 2)) {
-            hp -= 2;
-            updateHUD();
-            createParticles(player.x, player.y, "#ff0000");
-            z.x -= Math.cos(angle) * 20;
-            z.y -= Math.sin(angle) * 20;
-
-            if (hp <= 0) gameOver();
-        }
-
-        for (let j = bullets.length - 1; j >= 0; j--) {
-            let b = bullets[j];
-            let distB = Math.sqrt((b.x - z.x) ** 2 + (b.y - z.y) ** 2);
-            if (distB < z.size / 2 + 2) {
-                z.hp--;
-                bullets.splice(j, 1);
-                createParticles(z.x, z.y, "#880000");
-
-                if (z.hp <= 0) {
-                    zombies.splice(i, 1);
-                    score += 50;
-                    updateHUD();
-                    createParticles(z.x, z.y, "#00ff00");
-                }
-                break;
-            }
-        }
-    }
-
-    for (let i = particles.length - 1; i >= 0; i--) {
-        let p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life--;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, 3, 3);
-        if (p.life <= 0) particles.splice(i, 1);
-    }
+function snakeGameOver() {
+    stopSnake();
+    document.getElementById("snake-over-ui").style.display = "flex";
+    document.getElementById("snake-final-score").innerText = "SCORE: " + snakeScore;
+    document.getElementById("snake-hud").style.display = "none";
 }
 
 /* ========================
-   7. CONTEXT MENU (REFRESH)
+   REFRSH / CONTEXT MENU LOGIC
    ======================== */
-const contextMenu = document.getElementById("context-menu");
+const contextMenu = document.getElementById('context-menu');
 
-if (contextMenu) {
-    document.addEventListener('contextmenu', (e) => {
+// Show menu on LEFT click (if on desktop background)
+document.addEventListener('click', (e) => {
+    // Only show if clicking the desktop background, not an icon or window
+    if (e.target.tagName === 'BODY' || e.target.classList.contains('desktop-icons')) {
+        contextMenu.style.display = 'block';
+        contextMenu.style.left = e.pageX + 'px';
+        contextMenu.style.top = e.pageY + 'px';
+    } else if (!e.target.closest('#context-menu')) {
+        contextMenu.style.display = 'none';
+    }
+});
+
+// Also keep standard Right-Click for the context menu
+document.addEventListener('contextmenu', (e) => {
+    if (e.target.tagName === 'BODY' || e.target.classList.contains('desktop-icons')) {
         e.preventDefault();
-        contextMenu.style.left = `${e.clientX}px`;
-        contextMenu.style.top = `${e.clientY}px`;
-        contextMenu.style.display = "flex";
-    });
-
-    document.addEventListener('click', (e) => {
-        if (contextMenu.style.display === "flex") {
-            contextMenu.style.display = "none";
-        }
-    });
-}
+        contextMenu.style.display = 'block';
+        contextMenu.style.left = e.pageX + 'px';
+        contextMenu.style.top = e.pageY + 'px';
+    }
+});
 
 function triggerRefresh() {
-    location.reload();
+    contextMenu.style.display = 'none';
+
+    // Satisfying "System Refresh" visual flicker
+    const desktopIcons = document.querySelector('.desktop-icons');
+    desktopIcons.style.opacity = '0';
+
+    playProfessionalSound('mouse');
+
+    setTimeout(() => {
+        desktopIcons.style.opacity = '1';
+    }, 100);
 }
 
-/* ========================
-   8. ROAD RASH (RACING) GAME LOGIC
-   ======================== */
-const rrWindow = document.getElementById("rr-window");
-const rrTaskTab = document.getElementById("rr-taskbar-tab");
-const rrCanvas = document.getElementById("rrCanvas");
-const rrCtx = rrCanvas.getContext("2d");
-
-let rrRunning = false;
-let rrAnimId;
-let rrScore = 0;
-let rrSpeed = 0;
-let rrFrame = 0;
-
-const rrKeys = { left: false, right: false };
-let rrPlayer = { x: 320, y: 380, width: 40, height: 60, speed: 5 };
-let rrObstacles = [];
-let roadLines = [];
-
-function openRR() {
-    rrWindow.style.display = "flex";
-    if (rrTaskTab) rrTaskTab.style.display = "flex";
-    bringToFront(rrWindow);
-    document.getElementById('start-menu').classList.remove('show');
-}
-
-function closeRR() {
-    rrWindow.style.display = "none";
-    if (rrTaskTab) rrTaskTab.style.display = "none";
-    rrRunning = false;
-    cancelAnimationFrame(rrAnimId);
-}
-
-window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft" || e.key === "a") rrKeys.left = true;
-    if (e.key === "ArrowRight" || e.key === "d") rrKeys.right = true;
-});
-window.addEventListener("keyup", (e) => {
-    if (e.key === "ArrowLeft" || e.key === "a") rrKeys.left = false;
-    if (e.key === "ArrowRight" || e.key === "d") rrKeys.right = false;
-});
-
-function startRR() {
-    rrScore = 0;
-    rrSpeed = 5;
-    rrPlayer.x = rrCanvas.width / 2 - 20;
-    rrObstacles = [];
-    roadLines = [];
-    for (let i = 0; i < 10; i++) {
-        roadLines.push({ y: i * 50 });
-    }
-    rrRunning = true;
-    document.getElementById("rr-ui").style.display = "none";
-    document.getElementById("rr-over-ui").style.display = "none";
-    document.getElementById("rr-hud").style.display = "flex";
-    rrLoop();
-}
-
-function rrGameOver() {
-    rrRunning = false;
-    cancelAnimationFrame(rrAnimId);
-    document.getElementById("rr-over-ui").style.display = "flex";
-    document.getElementById("rr-final-score").innerText = "DISTANCE: " + Math.floor(rrScore) + " Miles";
-    document.getElementById("rr-hud").style.display = "none";
-}
-
-function rrLoop() {
-    if (!rrRunning) return;
-    rrAnimId = requestAnimationFrame(rrLoop);
-
-    // Clear & Grass
-    rrCtx.fillStyle = "#2c3e50";
-    rrCtx.fillRect(0, 0, rrCanvas.width, rrCanvas.height);
-
-    // Road
-    const roadX = 100;
-    const roadW = 440;
-    rrCtx.fillStyle = "#555";
-    rrCtx.fillRect(roadX, 0, roadW, rrCanvas.height);
-
-    // Borders
-    rrCtx.fillStyle = "#fff";
-    rrCtx.fillRect(roadX - 10, 0, 10, rrCanvas.height);
-    rrCtx.fillRect(roadX + roadW, 0, 10, rrCanvas.height);
-
-    rrSpeed += 0.005;
-    rrScore += rrSpeed * 0.01;
-    rrFrame++;
-
-    // Road Lines
-    rrCtx.fillStyle = "#fff";
-    roadLines.forEach(line => {
-        line.y += rrSpeed * 2;
-        if (line.y > rrCanvas.height) line.y = -50;
-        rrCtx.fillRect(rrCanvas.width / 2 - 5, line.y, 10, 30);
-    });
-
-    // Player
-    if (rrKeys.left && rrPlayer.x > roadX) rrPlayer.x -= 6;
-    if (rrKeys.right && rrPlayer.x < roadX + roadW - rrPlayer.width) rrPlayer.x += 6;
-    rrCtx.fillStyle = "#e74c3c";
-    rrCtx.fillRect(rrPlayer.x, rrPlayer.y, rrPlayer.width, rrPlayer.height);
-    rrCtx.fillStyle = "#000"; // Handlebars
-    rrCtx.fillRect(rrPlayer.x + 10, rrPlayer.y - 10, 20, 10);
-
-    // Obstacles
-    if (rrFrame % Math.floor(600 / rrSpeed) === 0) {
-        let obsX = roadX + Math.random() * (roadW - 50);
-        rrObstacles.push({ x: obsX, y: -100, w: 45, h: 70, color: "#3498db" });
-    }
-
-    for (let i = 0; i < rrObstacles.length; i++) {
-        let obs = rrObstacles[i];
-        obs.y += rrSpeed * 1.5;
-        rrCtx.fillStyle = obs.color;
-        rrCtx.fillRect(obs.x, obs.y, obs.w, obs.h);
-
-        // Collision
-        if (rrPlayer.x < obs.x + obs.w && rrPlayer.x + rrPlayer.width > obs.x && rrPlayer.y < obs.y + obs.h && rrPlayer.height + rrPlayer.y > obs.y) {
-            rrGameOver();
-        }
-
-        if (obs.y > rrCanvas.height) {
-            rrObstacles.splice(i, 1);
-            i--;
-        }
-    }
-
-    document.getElementById("rr-speed").innerText = Math.floor(rrSpeed * 10);
-    document.getElementById("rr-score").innerText = Math.floor(rrScore);
-}
-
-/* ========================
-   9. SHUTDOWN / RESTART LOGIC
-   ======================== */
 const shutdownWindow = document.getElementById("shutdown-window");
 const shutdownScreen = document.getElementById("shutdown-screen");
 
@@ -676,12 +478,22 @@ for (let i = 0; i < bufferSize; i++) {
     data[i] = Math.random() * 2 - 1;
 }
 
+// Global flag to ensure we only resume once
+let audioStarted = false;
+function ensureAudioStarted() {
+    if (!audioStarted && audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+            audioStarted = true;
+        });
+    }
+}
+
 /**
  * Professional Acoustic Engine
  * Optimized for zero-latency sync and premium textures.
  */
 function playProfessionalSound(type) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    ensureAudioStarted();
 
     const t = audioCtx.currentTime;
     const source = audioCtx.createBufferSource();
@@ -689,6 +501,13 @@ function playProfessionalSound(type) {
     const gain = audioCtx.createGain();
 
     source.buffer = noiseBuffer;
+
+    // Node Cleanup: Disconnect to free up resources immediately
+    source.onended = () => {
+        source.disconnect();
+        filter.disconnect();
+        gain.disconnect();
+    };
 
     if (type === 'mouse') {
         // ========================
@@ -742,8 +561,21 @@ function playProfessionalSound(type) {
 // PROFESSIONAL EVENT SYNC
 // ========================
 
+let isScrolling = false;
+let scrollTimeout;
+
+// Handle globally to detect any scroll
+window.addEventListener('scroll', () => {
+    isScrolling = true;
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+    }, 150); // Small threshold to reset after scroll stops
+}, { passive: true });
+
 // Mouse: Fires on 'mousedown' for 1:1 tactile response (Synced)
 document.addEventListener('mousedown', (e) => {
+    if (isScrolling) return; // Skip if currently scrolling
     // Only trigger for primary button (left) or secondary (right)
     if (e.button === 0 || e.button === 2) {
         playProfessionalSound('mouse');
@@ -751,15 +583,22 @@ document.addEventListener('mousedown', (e) => {
 });
 
 // Keyboard: Fires instantly on 'keydown'
+let lastKeyTime = 0;
 document.addEventListener('keydown', (e) => {
     // Prevent "machine gun" sound effect if key is held down
     if (!e.repeat) {
-        playProfessionalSound('keyboard');
+        // Performance guard: limit sound frequency on mobile/slow devices
+        const now = Date.now();
+        if (now - lastKeyTime > 50) {
+            playProfessionalSound('keyboard');
+            lastKeyTime = now;
+        }
     }
 });
 
 // Mobile: Professional tap sound
 document.addEventListener('touchstart', () => {
+    if (isScrolling) return; // Skip if currently scrolling
     playProfessionalSound('mouse');
 }, { passive: true });
 
