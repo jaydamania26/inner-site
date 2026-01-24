@@ -566,14 +566,6 @@
                 <img src="assets/doomIcon.png" style="filter: hue-rotate(120deg);">
                 <span>Snake.exe</span>
             </div>
-            <div class="menu-item" onclick="openCredits()">
-                <img src="assets/credits.png">
-                <span>Credits</span>
-            </div>
-            <div class="menu-item" onclick="openSnake()">
-                <img src="assets/doomIcon.png" style="filter: hue-rotate(120deg);">
-                <span>Snake.exe</span>
-            </div>
             <div class="hor-divider"></div>
             <!-- Opens Shutdown Dialog -->
             <div class="menu-item" onclick="openShutdown()">
@@ -585,8 +577,8 @@
 
     <!-- 8. DESKTOP CONTEXT MENU (Hidden by default) -->
     <div id="context-menu" class="context-menu">
-        <div class="context-item disabled">Arrange Icons</div>
-        <div class="context-item disabled">Line Up Icons</div>
+        <div class="context-item" onclick="arrangeIcons()">Arrange Icons</div>
+        <div class="context-item" onclick="lineUpIcons()">Line Up Icons</div>
         <div class="hor-divider"></div>
         <div class="context-item" onclick="triggerRefresh()">Refresh</div>
         <div class="hor-divider"></div>

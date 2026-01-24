@@ -436,6 +436,57 @@ function triggerRefresh() {
     }, 100);
 }
 
+/* ========================
+   ICON MANAGEMENT LOGIC
+   ======================== */
+function arrangeIcons() {
+    contextMenu.style.display = 'none';
+    const icons = document.querySelectorAll('.icon');
+    const startX = 30;
+    const startY = 30;
+    const gap = 30;
+    const iconHeight = 110;
+
+    icons.forEach((icon, index) => {
+        icon.style.transition = "all 0.4s ease-out";
+        icon.style.position = "absolute";
+        icon.style.left = `${startX}px`;
+        icon.style.top = `${startY + (index * (iconHeight + gap))}px`;
+    });
+
+    playProfessionalSound('mouse');
+
+    // Clear transition after move
+    setTimeout(() => {
+        icons.forEach(i => i.style.transition = "");
+    }, 500);
+}
+
+function lineUpIcons() {
+    contextMenu.style.display = 'none';
+    const icons = document.querySelectorAll('.icon');
+    const GRID_X = 140;
+    const GRID_Y = 140;
+
+    icons.forEach(icon => {
+        icon.style.transition = "all 0.3s ease-out";
+        const currentLeft = parseInt(icon.style.left) || icon.offsetLeft;
+        const currentTop = parseInt(icon.style.top) || icon.offsetTop;
+
+        const snappedX = Math.round((currentLeft - 30) / GRID_X) * GRID_X + 30;
+        const snappedY = Math.round((currentTop - 30) / GRID_Y) * GRID_Y + 30;
+
+        icon.style.left = `${snappedX}px`;
+        icon.style.top = `${snappedY}px`;
+    });
+
+    playProfessionalSound('mouse');
+
+    setTimeout(() => {
+        icons.forEach(i => i.style.transition = "");
+    }, 400);
+}
+
 const shutdownWindow = document.getElementById("shutdown-window");
 const shutdownScreen = document.getElementById("shutdown-screen");
 
@@ -614,12 +665,7 @@ function saveState(isOpen) {
 window.onload = function () {
     window.focus(); // Ensure keys work immediately
 
-    // Check local storage
-    const shouldOpen = localStorage.getItem('portfolioOpen') !== 'false';
-
-    if (shouldOpen) {
-        _openPortfolioInternal();
-    } else {
-        _closePortfolioInternal();
-    }
+    // Always start with the showcase open as requested
+    _openPortfolioInternal();
+    saveState(true);
 };
