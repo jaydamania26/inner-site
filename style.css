@@ -4,11 +4,11 @@ body {
     padding: 0;
     font-family: 'Pixelify Sans', 'MS Sans Serif', Arial, sans-serif;
     overflow: hidden;
-    /* Simulate 125% Zoom + Previous Scale: Total Scale ~1.047, Width ~95.5% */
-    transform: scale(1.047);
+    /* Simulate 90% Zoom of Previous: Total Scale ~0.942, Width ~106.15% */
+    transform: scale(0.942);
     transform-origin: top left;
-    width: 95.5vw;
-    height: 95.5vh;
+    width: 106.15vw;
+    height: 106.15vh;
     user-select: none;
 }
 
